@@ -10,12 +10,8 @@ RUN go mod download
 
 COPY ./**/*.go ./
 
-RUN echo $(ls)
-
 RUN go build -o main
 
 EXPOSE 8080
-
-RUN echo $(ls)
 
 RUN ["chmod", "+x", "./main"]
