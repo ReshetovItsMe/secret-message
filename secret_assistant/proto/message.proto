@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package main;
+
+option go_package = "main/message";
+
+service SecretAssistant {
+  rpc encrypt (RequestMessage) returns (ResponseMessage) {}
+}
+
+message ResponseMessage {
+  string id = 1;
+  string encrypted_message = 2;
+}
+
+message RequestMessage {
+  string body = 1;
+}
