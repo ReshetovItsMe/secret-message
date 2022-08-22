@@ -1,0 +1,29 @@
+version: "3.6"
+
+services:
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    expose:
+      - "3000"
+    depends_on:
+      - redis
+      - secret-assistant
+  secret-assistant:
+    build:
+      context: ./secret_assistant
+      dockerfile: Dockerfile
+    ports:
+      - "50052:50052"
+    expose:
+      - "50052"
+  redis:
+    image: redis:7.0.4-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    expose:
+      - "6379"

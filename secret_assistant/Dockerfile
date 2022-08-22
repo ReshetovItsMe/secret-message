@@ -1,17 +1,21 @@
 # syntax=docker/dockerfile:1
 
 FROM golang:1.18-alpine
+ENV APP_HOME /app/secret-assistant
 
-WORKDIR /app/secret-assistant
+WORKDIR "$APP_HOME"
 
 COPY go.mod ./
 COPY go.sum ./
+
 RUN go mod download
+RUN go mod verify
 
-COPY ./**/*.go ./
+COPY . . 
 
-RUN go build -o main
+WORKDIR "./cmd"
+RUN go build -o /secret-assistant
 
-EXPOSE 8080
+EXPOSE 50052
 
-RUN ["chmod", "+x", "./main"]
+CMD ["/secret-assistant"]
