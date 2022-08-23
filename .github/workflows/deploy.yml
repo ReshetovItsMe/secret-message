@@ -40,5 +40,5 @@ jobs:
         run: go mod verify
         working-directory: ./secret_assistant
       - name: Building...
-        run: go build -o /secret-assistant
+        run: go build
         working-directory: ./secret_assistant/cmd
