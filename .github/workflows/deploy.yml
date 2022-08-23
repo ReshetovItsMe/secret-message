@@ -1,5 +1,4 @@
 name: Deploy App
-description: Deploys backend using docker compose
 on:
   push:
     branches:
