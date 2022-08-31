@@ -1,44 +1,32 @@
-name: Check linting, run tests and build
+name: Deploy on server using Docker
+
+concurrency:
+  group: production
+  cancel-in-progress: true
+
+# Only trigger, when the build workflow succeeded
 on:
+  workflow_run:
+    workflows: ["Check linting, run tests and build"]
+    types:
+      - completed
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+
 jobs:
-  gateway:
+  build_and_deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Deploy to Docker
+        uses: wshihadeh/docker-deployment-action@v2
         with:
-          node-version: 16
-      - name: 📟 Downloading dependencies...
-        run: yarn install
-        working-directory: ./gateway
-      - name: Building...
-        run: yarn build
-        working-directory: ./gateway
-      - name: Linting...
-        run: yarn lint
-        working-directory: ./gateway
-      - name: Testing...
-        run: yarn test
-        working-directory: ./gateway
-  secret-assistant:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version: ">=1.18.0"
-      - name: 📟 Downloading dependencies...
-        run: go mod download
-        working-directory: ./secret_assistant
-      - name: Verifying...
-        run: go mod verify
-        working-directory: ./secret_assistant
-      - name: Building...
-        run: go build
-        working-directory: ./secret_assistant/cmd
+          remote_docker_host: ${{ secrets.REMOTE_HOST_AND_NAME }}
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          deployment_mode: docker-compose
+          args: up -d
+          docker_prune: "true"
+          pull_images_first: "true"
