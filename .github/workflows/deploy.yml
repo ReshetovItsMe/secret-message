@@ -10,10 +10,6 @@ on:
     workflows: ["Check linting, run tests and build"]
     types:
       - completed
-  push:
-    branches:
-      - main
-      - github-actions
 
 jobs:
   build_and_deploy:
@@ -21,13 +17,3 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Deploy to Docker
-        uses: wshihadeh/docker-deployment-action@v2
-        with:
-          remote_docker_host: ${{ secrets.REMOTE_HOST_AND_NAME }}
-          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-          ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
-          deployment_mode: docker-compose
-          args: up -d
-          docker_prune: "true"
-          pull_images_first: "true"
