@@ -8,14 +8,20 @@ export const init = async (): Promise<Server> => {
         port: process.env.PORT || 3000,
         host: process.env.HOST || '0.0.0.0',
     });
-    server.route(message);
 
-    // Routes will go here
+    server.route(message);
+    server.route({
+        method: '*',
+        path: '/{any*}',
+        handler: (_, h) => {
+            return h.response('Error! Route Not Found!').code(404);
+        },
+    });
 
     await server.register(Pino);
     server.log(`Listening on ${server.settings.host}:${server.settings.port}`);
-    await server.start();
 
+    await server.start();
     return server;
 };
 

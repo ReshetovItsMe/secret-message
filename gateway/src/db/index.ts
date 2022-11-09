@@ -1,4 +1,5 @@
 import Redis from 'ioredis';
+import { v4 as uuid } from 'uuid';
 import logger from '../logger';
 
 const redis = new Redis({
@@ -9,14 +10,21 @@ const redis = new Redis({
     db: process.env.REDIS_DB ? Number(process.env.REDIS_DB) : 0, // Defaults to 0
 });
 
-const addMessage = (message: string) => {
-    logger.info('hey', message);
-    logger.info('hey', redis);
+const addMessage = (message: string): string => {
+    logger.info('Adding message');
+    const id = uuid();
+    logger.trace(`Message id ${id}`);
+    redis.set(uuid(), message);
+    return id;
 };
 
-const getMessage = (id: string): string => {
-    logger.info('hey', id);
-    return '';
+const getMessage = async (id: string): Promise<string> => {
+    logger.trace(`Get message id ${id}`);
+    const message = await redis.get(id);
+    if (message) {
+        return message;
+    }
+    throw new Error(`Message with id=${id} doesn't exist`);
 };
 
 export default { addMessage, getMessage };

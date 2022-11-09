@@ -22,12 +22,14 @@
     "hapi-pino": "^11.0.1",
     "ioredis": "^5.2.3",
     "pino": "^8.7.0",
-    "pino-pretty": "^9.1.1"
+    "pino-pretty": "^9.1.1",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@types/hapi__hapi": "^20.0.13",
     "@types/jest": "^29.2.0",
     "@types/node": "^18.11.7",
+    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
     "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.0.1",
