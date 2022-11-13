@@ -91,8 +91,7 @@ proto.main.ResponseMessage.prototype.toObject = function(opt_includeInstance) {
  */
 proto.main.ResponseMessage.toObject = function(includeInstance, msg) {
   var f, obj = {
-    id: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    encryptedMessage: jspb.Message.getFieldWithDefault(msg, 2, "")
+    body: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -131,11 +130,7 @@ proto.main.ResponseMessage.deserializeBinaryFromReader = function(msg, reader) {
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setId(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setEncryptedMessage(value);
+      msg.setBody(value);
       break;
     default:
       reader.skipField();
@@ -166,17 +161,10 @@ proto.main.ResponseMessage.prototype.serializeBinary = function() {
  */
 proto.main.ResponseMessage.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getId();
+  f = message.getBody();
   if (f.length > 0) {
     writer.writeString(
       1,
-      f
-    );
-  }
-  f = message.getEncryptedMessage();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
       f
     );
   }
@@ -184,10 +172,10 @@ proto.main.ResponseMessage.serializeBinaryToWriter = function(message, writer) {
 
 
 /**
- * optional string id = 1;
+ * optional string body = 1;
  * @return {string}
  */
-proto.main.ResponseMessage.prototype.getId = function() {
+proto.main.ResponseMessage.prototype.getBody = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
@@ -196,26 +184,8 @@ proto.main.ResponseMessage.prototype.getId = function() {
  * @param {string} value
  * @return {!proto.main.ResponseMessage} returns this
  */
-proto.main.ResponseMessage.prototype.setId = function(value) {
+proto.main.ResponseMessage.prototype.setBody = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
-};
-
-
-/**
- * optional string encrypted_message = 2;
- * @return {string}
- */
-proto.main.ResponseMessage.prototype.getEncryptedMessage = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.main.ResponseMessage} returns this
- */
-proto.main.ResponseMessage.prototype.setEncryptedMessage = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 

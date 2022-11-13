@@ -4,11 +4,8 @@
 import * as jspb from "google-protobuf";
 
 export class ResponseMessage extends jspb.Message {
-  getId(): string;
-  setId(value: string): void;
-
-  getEncryptedMessage(): string;
-  setEncryptedMessage(value: string): void;
+  getBody(): string;
+  setBody(value: string): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ResponseMessage.AsObject;
@@ -22,8 +19,7 @@ export class ResponseMessage extends jspb.Message {
 
 export namespace ResponseMessage {
   export type AsObject = {
-    id: string,
-    encryptedMessage: string,
+    body: string,
   }
 }
 
