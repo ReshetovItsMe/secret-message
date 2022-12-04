@@ -4,7 +4,7 @@
 // - protoc             v3.21.8
 // source: message.proto
 
-package _go
+package message
 
 import (
 	context "context"
