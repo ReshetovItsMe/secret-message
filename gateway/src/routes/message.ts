@@ -4,7 +4,7 @@ import { messageHandler } from '../handlers';
 const messageRoutes: Array<ServerRoute> = [
     {
         method: 'POST',
-        path: '/messages',
+        path: '/message',
         handler: messageHandler.sendMessage,
     },
 ];

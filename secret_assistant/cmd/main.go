@@ -3,11 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	pb "github.com/ReshetovItsMe/one-time-messaging-exchange-be/proto"
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
 	"log"
 	"net"
+
+	pb "github.com/ReshetovItsMe/one-time-messaging-exchange-be/proto/message"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 )
 
 var (

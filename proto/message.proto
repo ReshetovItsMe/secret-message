@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package main;
 
-option go_package = "main/message";
+option go_package = "generated/go";
 
 service SecretAssistant {
   rpc encrypt (RequestMessage) returns (ResponseMessage) {}

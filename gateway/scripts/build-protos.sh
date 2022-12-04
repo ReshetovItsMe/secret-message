@@ -13,7 +13,7 @@ fi
 
 cd ../proto || exit
 
-OUT_DIR="./generated"
+OUT_DIR="./generated/ts"
 mkdir -p ${OUT_DIR}
 
 
