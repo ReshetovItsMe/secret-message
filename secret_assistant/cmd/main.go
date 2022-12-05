@@ -6,7 +6,8 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/ReshetovItsMe/one-time-messaging-exchange-be/generated/go"
+	pb "main/message"
+
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
