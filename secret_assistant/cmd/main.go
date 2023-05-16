@@ -3,11 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	pb "github.com/ReshetovItsMe/one-time-messaging-exchange-be/proto"
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
 	"log"
 	"net"
+
+	pb "github.com/ReshetovItsMe/one-time-messaging-exchange-be/proto"
+
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 )
 
 var (
@@ -20,7 +22,7 @@ type server struct {
 
 func (s *server) EncryptMessage(ctx context.Context, in *pb.RequestMessage) (*pb.ResponseMessage, error) {
 	log.Printf("Received: %v", in.GetBody())
-	return &pb.ResponseMessage{Id: "test", EncryptedMessage: in.GetBody()}, nil
+	return &pb.ResponseMessage{Body: in.GetBody()}, nil
 }
 
 func main() {
