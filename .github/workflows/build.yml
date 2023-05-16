@@ -1,4 +1,4 @@
-name: Check linting, run tests and build
+name: Main workflow
 on:
   push:
     branches:
