@@ -15,7 +15,7 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v2
         with:
-          node-version: 20
+          node-version: latest
       - name: 📟 Downloading dependencies...
         run: yarn install
         working-directory: ./gateway
@@ -69,8 +69,8 @@ jobs:
       - name: Build and push assistant
         uses: docker/build-push-action@v2
         with:
-          context: ./assistant
-          file: ./assistant/Dockerfile
+          context: ./secret_assistant
+          file: ./secret_assistant/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/secret-assistant:latest
   deploy:
