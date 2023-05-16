@@ -10,10 +10,12 @@ jobs:
   gateway:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Install Node
+        uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 20
       - name: 📟 Downloading dependencies...
         run: yarn install
         working-directory: ./gateway
@@ -42,3 +44,51 @@ jobs:
       - name: Building...
         run: go build
         working-directory: ./secret_assistant/cmd
+  push-to-docker-hub:
+    runs-on: ubuntu-latest
+    needs: [gateway, secret-assistant]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push gateway
+        uses: docker/build-push-action@v2
+        with:
+          context: ./gateway
+          file: ./gateway/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/secret-gateway:latest
+      - name: Build and push assistant
+        uses: docker/build-push-action@v2
+        with:
+          context: ./assistant
+          file: ./assistant/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/secret-assistant:latest
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [push_to_docker_hub]
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
+        # TODO: add env vars as secrets on GitHub
+        with:
+          host: ${{ secrets.VPS_SSH_HOST }}
+          username: ${{ secrets.VPS_SSH_USERNAME }}
+          key: ${{ secrets.VPS_SSH_SECRET }}
+          port: ${{ secrets.VPS_SSH_PORT }}
+          script: |
+            echo "Pull new image"
+            docker-compose -f /home/${{ secrets.VPS_SSH_USERNAME }}/one-time-messaging-exchange-be/docker-compose.yml pull
+            echo "Restart the container"
+            docker-compose -f /home/${{ secrets.VPS_SSH_USERNAME }}/one-time-messaging-exchange-be/docker-compose.yml up --force-recreate --build --no-deps -d
+            echo "Delete old image"
+            docker image prune -f
