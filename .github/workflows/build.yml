@@ -44,7 +44,7 @@ jobs:
       - name: Building...
         run: go build
         working-directory: ./secret_assistant/cmd
-  push-to-docker-hub:
+  push_to_docker_hub:
     runs-on: ubuntu-latest
     needs: [gateway, secret-assistant]
     steps:
