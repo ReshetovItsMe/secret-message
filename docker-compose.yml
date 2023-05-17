@@ -2,6 +2,7 @@ version: "3.6"
 
 services:
   gateway:
+    platform: linux/amd64
     build:
       context: ./gateway
       dockerfile: Dockerfile
@@ -21,7 +22,7 @@ services:
     expose:
       - "50052"
   redis:
-    image: redis:7.0.4-alpine
+    image: redis:7-bullseye
     restart: always
     ports:
       - "6379:6379"

@@ -11,4 +11,6 @@ COPY . .
 
 RUN yarn build
 
+EXPOSE 50052
+
 CMD [ "node", "dist/index.js" ]
