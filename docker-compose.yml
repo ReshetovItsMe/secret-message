@@ -2,6 +2,7 @@ version: "3.6"
 
 services:
   gateway:
+    platform: linux/amd64
     build:
       context: ./gateway
       dockerfile: Dockerfile
