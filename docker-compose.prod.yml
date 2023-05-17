@@ -1,0 +1,25 @@
+version: "3.6"
+
+services:
+  gateway:
+    image: reshetovitsme/secret-gateway:latest
+    ports:
+      - "3000:3000"
+    expose:
+      - "3000"
+    depends_on:
+      - redis
+      - secret-assistant
+  secret-assistant:
+    image: reshetovitsme/secret-assistant:latest
+    ports:
+      - "50052:50052"
+    expose:
+      - "50052"
+  redis:
+    image: redis:7-bullseye
+    restart: always
+    ports:
+      - "6379:6379"
+    expose:
+      - "6379"
