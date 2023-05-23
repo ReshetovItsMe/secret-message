@@ -1,6 +1,7 @@
 import { Lifecycle } from '@hapi/hapi';
 import logger from '../logger';
 import { db, secretAssistant } from '../services';
+import { RequestMessage } from '../../proto/message_pb';
 
 const sendMessage: Lifecycle.Method = async (request, h) => {
     try {
@@ -9,20 +10,21 @@ const sendMessage: Lifecycle.Method = async (request, h) => {
         const { message } = payload as { message: string };
 
         logger.info('Start encryption');
+        const reqMessage: RequestMessage = new RequestMessage();
+        reqMessage.setBody(message);
         const encryptedMessage: string = await new Promise(
             (resolve, reject) => {
-                secretAssistant.encrypt(
-                    Object.create({ body: message }),
-                    (error, newMessage) => {
-                        if (error) {
-                            reject(error);
-                        }
-                        if (!newMessage) {
-                            throw new Error('Encrypted message is empty');
-                        }
-                        resolve(newMessage.getBody());
+                secretAssistant.encrypt(reqMessage, (error, newMessage) => {
+                    if (error) {
+                        reject(error);
+                        return;
                     }
-                );
+                    if (!newMessage) {
+                        reject(new Error('Encrypted message is empty'));
+                        return;
+                    }
+                    resolve(newMessage.getBody());
+                });
             }
         );
         logger.info('Encrypted');
@@ -31,7 +33,10 @@ const sendMessage: Lifecycle.Method = async (request, h) => {
 
         return h.response({ messageId: id }).code(201);
     } catch (error: unknown) {
-        return h.response(error as Error).code(500);
+        const err = error as Error;
+        logger.error('Error, something went wrong:');
+        logger.error(err);
+        return h.response(err.message).code(500);
     }
 };
 

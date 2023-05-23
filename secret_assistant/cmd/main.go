@@ -6,10 +6,11 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/ReshetovItsMe/one-time-messaging-exchange-be/proto"
+	api "github.com/ReshetovItsMe/one-time-messaging-exchange-be/proto"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 var (
@@ -17,12 +18,12 @@ var (
 )
 
 type server struct {
-	pb.UnimplementedSecretAssistantServer
+	api.UnimplementedSecretAssistantServer
 }
 
-func (s *server) EncryptMessage(ctx context.Context, in *pb.RequestMessage) (*pb.ResponseMessage, error) {
+func (s *server) Encrypt(ctx context.Context, in *api.RequestMessage) (*api.ResponseMessage, error) {
 	log.Printf("Received: %v", in.GetBody())
-	return &pb.ResponseMessage{Body: in.GetBody()}, nil
+	return &api.ResponseMessage{Body: in.GetBody()}, nil
 }
 
 func main() {
@@ -31,8 +32,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
+	serverInstance := server{}
 	grpcServer := grpc.NewServer()
-	pb.RegisterSecretAssistantServer(grpcServer, &server{})
+	api.RegisterSecretAssistantServer(grpcServer, &serverInstance)
+	reflection.Register(grpcServer)
 	log.Printf("server listening at %v", listener.Addr())
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("failed to serve: %v", err)
