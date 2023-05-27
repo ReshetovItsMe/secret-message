@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 
+	enc "github.com/ReshetovItsMe/one-time-messaging-exchange-be/internal/encrypt"
 	api "github.com/ReshetovItsMe/one-time-messaging-exchange-be/proto"
 
 	"golang.org/x/net/context"
@@ -22,8 +23,13 @@ type server struct {
 }
 
 func (s *server) Encrypt(ctx context.Context, in *api.RequestMessage) (*api.ResponseMessage, error) {
-	log.Printf("Received: %v", in.GetBody())
-	return &api.ResponseMessage{Body: in.GetBody()}, nil
+	text := in.GetBody()
+	log.Printf("Received: %v", text)
+	ciphertext, err := enc.Encrypt(text)
+	if err != nil {
+		return nil, err
+	}
+	return &api.ResponseMessage{Body: ciphertext}, nil
 }
 
 func main() {
