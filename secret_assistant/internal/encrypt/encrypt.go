@@ -4,7 +4,6 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"fmt"
 	"io"
 )
 
@@ -13,14 +12,10 @@ func Encrypt(text string) ([]byte, error) {
 
 	block, aesErr := aes.NewCipher([]byte(key))
 	if aesErr != nil {
-		fmt.Println("ERROR HERE")
-		fmt.Println(aesErr)
 		return nil, aesErr
 	}
 	gcm, cipherErr := cipher.NewGCM(block)
 	if cipherErr != nil {
-		fmt.Println("ERROR HERE 2")
-		fmt.Println(cipherErr)
 		return nil, cipherErr
 	}
 
@@ -29,8 +24,6 @@ func Encrypt(text string) ([]byte, error) {
 	// populates our nonce with a cryptographically secure
 	// random sequence
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		fmt.Println("ERROR HERE 3")
-		fmt.Println(err)
 		return nil, err
 	}
 	ciphertext := gcm.Seal(nonce, nonce, []byte(text), nil)
