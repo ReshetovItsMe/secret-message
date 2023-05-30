@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 
+	dec "github.com/ReshetovItsMe/one-time-messaging-exchange-be/internal/decrypt"
 	enc "github.com/ReshetovItsMe/one-time-messaging-exchange-be/internal/encrypt"
 	api "github.com/ReshetovItsMe/one-time-messaging-exchange-be/proto"
 
@@ -22,14 +23,24 @@ type server struct {
 	api.UnimplementedSecretAssistantServer
 }
 
-func (s *server) Encrypt(ctx context.Context, in *api.RequestMessage) (*api.ResponseMessage, error) {
+func (s *server) Encrypt(ctx context.Context, in *api.EncryptRequestMessage) (*api.EncryptedMessageResponse, error) {
 	text := in.GetBody()
-	log.Printf("Received: %v", text)
+	log.Printf("Received some message to encrypt")
 	ciphertext, err := enc.Encrypt(text)
 	if err != nil {
 		return nil, err
 	}
-	return &api.ResponseMessage{Body: ciphertext}, nil
+	return &api.EncryptedMessageResponse{Body: ciphertext}, nil
+}
+
+func (s *server) Decrypt(ctx context.Context, in *api.DecryptRequestMessage) (*api.DecryptedMessageResponse, error) {
+	text := in.GetBody()
+	log.Printf("Received some message to decrypt")
+	unwrappedText, err := dec.Decrypt(text)
+	if err != nil {
+		return nil, err
+	}
+	return &api.DecryptedMessageResponse{Body: unwrappedText}, nil
 }
 
 func main() {

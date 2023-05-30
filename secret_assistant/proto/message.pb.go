@@ -20,7 +20,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type ResponseMessage struct {
+type EncryptedMessageResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -28,8 +28,8 @@ type ResponseMessage struct {
 	Body []byte `protobuf:"bytes,1,opt,name=body,proto3" json:"body,omitempty"`
 }
 
-func (x *ResponseMessage) Reset() {
-	*x = ResponseMessage{}
+func (x *EncryptedMessageResponse) Reset() {
+	*x = EncryptedMessageResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_message_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -37,13 +37,13 @@ func (x *ResponseMessage) Reset() {
 	}
 }
 
-func (x *ResponseMessage) String() string {
+func (x *EncryptedMessageResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ResponseMessage) ProtoMessage() {}
+func (*EncryptedMessageResponse) ProtoMessage() {}
 
-func (x *ResponseMessage) ProtoReflect() protoreflect.Message {
+func (x *EncryptedMessageResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_message_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -55,19 +55,19 @@ func (x *ResponseMessage) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ResponseMessage.ProtoReflect.Descriptor instead.
-func (*ResponseMessage) Descriptor() ([]byte, []int) {
+// Deprecated: Use EncryptedMessageResponse.ProtoReflect.Descriptor instead.
+func (*EncryptedMessageResponse) Descriptor() ([]byte, []int) {
 	return file_message_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ResponseMessage) GetBody() []byte {
+func (x *EncryptedMessageResponse) GetBody() []byte {
 	if x != nil {
 		return x.Body
 	}
 	return nil
 }
 
-type RequestMessage struct {
+type DecryptedMessageResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -75,8 +75,8 @@ type RequestMessage struct {
 	Body string `protobuf:"bytes,1,opt,name=body,proto3" json:"body,omitempty"`
 }
 
-func (x *RequestMessage) Reset() {
-	*x = RequestMessage{}
+func (x *DecryptedMessageResponse) Reset() {
+	*x = DecryptedMessageResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_message_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -84,13 +84,13 @@ func (x *RequestMessage) Reset() {
 	}
 }
 
-func (x *RequestMessage) String() string {
+func (x *DecryptedMessageResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RequestMessage) ProtoMessage() {}
+func (*DecryptedMessageResponse) ProtoMessage() {}
 
-func (x *RequestMessage) ProtoReflect() protoreflect.Message {
+func (x *DecryptedMessageResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_message_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -102,34 +102,140 @@ func (x *RequestMessage) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RequestMessage.ProtoReflect.Descriptor instead.
-func (*RequestMessage) Descriptor() ([]byte, []int) {
+// Deprecated: Use DecryptedMessageResponse.ProtoReflect.Descriptor instead.
+func (*DecryptedMessageResponse) Descriptor() ([]byte, []int) {
 	return file_message_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *RequestMessage) GetBody() string {
+func (x *DecryptedMessageResponse) GetBody() string {
 	if x != nil {
 		return x.Body
 	}
 	return ""
 }
 
+type EncryptRequestMessage struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Body string `protobuf:"bytes,1,opt,name=body,proto3" json:"body,omitempty"`
+}
+
+func (x *EncryptRequestMessage) Reset() {
+	*x = EncryptRequestMessage{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_message_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *EncryptRequestMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EncryptRequestMessage) ProtoMessage() {}
+
+func (x *EncryptRequestMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_message_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EncryptRequestMessage.ProtoReflect.Descriptor instead.
+func (*EncryptRequestMessage) Descriptor() ([]byte, []int) {
+	return file_message_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *EncryptRequestMessage) GetBody() string {
+	if x != nil {
+		return x.Body
+	}
+	return ""
+}
+
+type DecryptRequestMessage struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Body []byte `protobuf:"bytes,1,opt,name=body,proto3" json:"body,omitempty"`
+}
+
+func (x *DecryptRequestMessage) Reset() {
+	*x = DecryptRequestMessage{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_message_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DecryptRequestMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecryptRequestMessage) ProtoMessage() {}
+
+func (x *DecryptRequestMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_message_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecryptRequestMessage.ProtoReflect.Descriptor instead.
+func (*DecryptRequestMessage) Descriptor() ([]byte, []int) {
+	return file_message_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DecryptRequestMessage) GetBody() []byte {
+	if x != nil {
+		return x.Body
+	}
+	return nil
+}
+
 var File_message_proto protoreflect.FileDescriptor
 
 var file_message_proto_rawDesc = []byte{
 	0x0a, 0x0d, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12,
-	0x04, 0x6d, 0x61, 0x69, 0x6e, 0x22, 0x25, 0x0a, 0x0f, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x62, 0x6f, 0x64, 0x79,
-	0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x04, 0x62, 0x6f, 0x64, 0x79, 0x22, 0x24, 0x0a, 0x0e,
+	0x04, 0x6d, 0x61, 0x69, 0x6e, 0x22, 0x2e, 0x0a, 0x18, 0x45, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74,
+	0x65, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x12, 0x0a, 0x04, 0x62, 0x6f, 0x64, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52,
+	0x04, 0x62, 0x6f, 0x64, 0x79, 0x22, 0x2e, 0x0a, 0x18, 0x44, 0x65, 0x63, 0x72, 0x79, 0x70, 0x74,
+	0x65, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x12, 0x0a, 0x04, 0x62, 0x6f, 0x64, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x04, 0x62, 0x6f, 0x64, 0x79, 0x22, 0x2b, 0x0a, 0x15, 0x45, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74,
 	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x12,
 	0x0a, 0x04, 0x62, 0x6f, 0x64, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x62, 0x6f,
-	0x64, 0x79, 0x32, 0x4b, 0x0a, 0x0f, 0x53, 0x65, 0x63, 0x72, 0x65, 0x74, 0x41, 0x73, 0x73, 0x69,
-	0x73, 0x74, 0x61, 0x6e, 0x74, 0x12, 0x38, 0x0a, 0x07, 0x65, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74,
-	0x12, 0x14, 0x2e, 0x6d, 0x61, 0x69, 0x6e, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x4d,
-	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x15, 0x2e, 0x6d, 0x61, 0x69, 0x6e, 0x2e, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x00, 0x42,
-	0x0e, 0x5a, 0x0c, 0x6d, 0x61, 0x69, 0x6e, 0x2f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x64, 0x79, 0x22, 0x2b, 0x0a, 0x15, 0x44, 0x65, 0x63, 0x72, 0x79, 0x70, 0x74, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x62,
+	0x6f, 0x64, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x04, 0x62, 0x6f, 0x64, 0x79, 0x32,
+	0xa5, 0x01, 0x0a, 0x0f, 0x53, 0x65, 0x63, 0x72, 0x65, 0x74, 0x41, 0x73, 0x73, 0x69, 0x73, 0x74,
+	0x61, 0x6e, 0x74, 0x12, 0x48, 0x0a, 0x07, 0x65, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x12, 0x1b,
+	0x2e, 0x6d, 0x61, 0x69, 0x6e, 0x2e, 0x45, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x1e, 0x2e, 0x6d, 0x61,
+	0x69, 0x6e, 0x2e, 0x45, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x65, 0x64, 0x4d, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x48, 0x0a,
+	0x07, 0x64, 0x65, 0x63, 0x72, 0x79, 0x70, 0x74, 0x12, 0x1b, 0x2e, 0x6d, 0x61, 0x69, 0x6e, 0x2e,
+	0x44, 0x65, 0x63, 0x72, 0x79, 0x70, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x4d, 0x65,
+	0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x1e, 0x2e, 0x6d, 0x61, 0x69, 0x6e, 0x2e, 0x44, 0x65, 0x63,
+	0x72, 0x79, 0x70, 0x74, 0x65, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x0e, 0x5a, 0x0c, 0x6d, 0x61, 0x69, 0x6e, 0x2f,
+	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -144,16 +250,20 @@ func file_message_proto_rawDescGZIP() []byte {
 	return file_message_proto_rawDescData
 }
 
-var file_message_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_message_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_message_proto_goTypes = []interface{}{
-	(*ResponseMessage)(nil), // 0: main.ResponseMessage
-	(*RequestMessage)(nil),  // 1: main.RequestMessage
+	(*EncryptedMessageResponse)(nil), // 0: main.EncryptedMessageResponse
+	(*DecryptedMessageResponse)(nil), // 1: main.DecryptedMessageResponse
+	(*EncryptRequestMessage)(nil),    // 2: main.EncryptRequestMessage
+	(*DecryptRequestMessage)(nil),    // 3: main.DecryptRequestMessage
 }
 var file_message_proto_depIdxs = []int32{
-	1, // 0: main.SecretAssistant.encrypt:input_type -> main.RequestMessage
-	0, // 1: main.SecretAssistant.encrypt:output_type -> main.ResponseMessage
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	2, // 0: main.SecretAssistant.encrypt:input_type -> main.EncryptRequestMessage
+	3, // 1: main.SecretAssistant.decrypt:input_type -> main.DecryptRequestMessage
+	0, // 2: main.SecretAssistant.encrypt:output_type -> main.EncryptedMessageResponse
+	1, // 3: main.SecretAssistant.decrypt:output_type -> main.DecryptedMessageResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -166,7 +276,7 @@ func file_message_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_message_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ResponseMessage); i {
+			switch v := v.(*EncryptedMessageResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -178,7 +288,31 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RequestMessage); i {
+			switch v := v.(*DecryptedMessageResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_message_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*EncryptRequestMessage); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_message_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DecryptRequestMessage); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -196,7 +330,7 @@ func file_message_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_message_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
