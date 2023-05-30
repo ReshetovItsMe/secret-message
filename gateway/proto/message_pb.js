@@ -91,7 +91,7 @@ proto.main.ResponseMessage.prototype.toObject = function(opt_includeInstance) {
  */
 proto.main.ResponseMessage.toObject = function(includeInstance, msg) {
   var f, obj = {
-    body: jspb.Message.getFieldWithDefault(msg, 1, "")
+    body: msg.getBody_asB64()
   };
 
   if (includeInstance) {
@@ -129,7 +129,7 @@ proto.main.ResponseMessage.deserializeBinaryFromReader = function(msg, reader) {
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {string} */ (reader.readString());
+      var value = /** @type {!Uint8Array} */ (reader.readBytes());
       msg.setBody(value);
       break;
     default:
@@ -161,9 +161,9 @@ proto.main.ResponseMessage.prototype.serializeBinary = function() {
  */
 proto.main.ResponseMessage.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getBody();
+  f = message.getBody_asU8();
   if (f.length > 0) {
-    writer.writeString(
+    writer.writeBytes(
       1,
       f
     );
@@ -172,20 +172,44 @@ proto.main.ResponseMessage.serializeBinaryToWriter = function(message, writer) {
 
 
 /**
- * optional string body = 1;
- * @return {string}
+ * optional bytes body = 1;
+ * @return {!(string|Uint8Array)}
  */
 proto.main.ResponseMessage.prototype.getBody = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+  return /** @type {!(string|Uint8Array)} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /**
- * @param {string} value
+ * optional bytes body = 1;
+ * This is a type-conversion wrapper around `getBody()`
+ * @return {string}
+ */
+proto.main.ResponseMessage.prototype.getBody_asB64 = function() {
+  return /** @type {string} */ (jspb.Message.bytesAsB64(
+      this.getBody()));
+};
+
+
+/**
+ * optional bytes body = 1;
+ * Note that Uint8Array is not supported on all browsers.
+ * @see http://caniuse.com/Uint8Array
+ * This is a type-conversion wrapper around `getBody()`
+ * @return {!Uint8Array}
+ */
+proto.main.ResponseMessage.prototype.getBody_asU8 = function() {
+  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
+      this.getBody()));
+};
+
+
+/**
+ * @param {!(string|Uint8Array)} value
  * @return {!proto.main.ResponseMessage} returns this
  */
 proto.main.ResponseMessage.prototype.setBody = function(value) {
-  return jspb.Message.setProto3StringField(this, 1, value);
+  return jspb.Message.setProto3BytesField(this, 1, value);
 };
 
 

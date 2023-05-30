@@ -12,7 +12,7 @@ const sendMessage: Lifecycle.Method = async (request, h) => {
         logger.info('Start encryption');
         const reqMessage: RequestMessage = new RequestMessage();
         reqMessage.setBody(message);
-        const encryptedMessage: string = await new Promise(
+        const encryptedMessage: Uint8Array | string = await new Promise(
             (resolve, reject) => {
                 secretAssistant.encrypt(reqMessage, (error, newMessage) => {
                     if (error) {
@@ -29,7 +29,11 @@ const sendMessage: Lifecycle.Method = async (request, h) => {
         );
         logger.info('Encrypted');
 
-        const id = db.addMessage(encryptedMessage);
+        const messageToWrite: string =
+            encryptedMessage instanceof Uint8Array
+                ? new TextDecoder().decode(encryptedMessage)
+                : encryptedMessage;
+        const id = db.addMessage(messageToWrite);
 
         return h.response({ messageId: id }).code(201);
     } catch (error: unknown) {

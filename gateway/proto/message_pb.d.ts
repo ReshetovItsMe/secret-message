@@ -4,8 +4,10 @@
 import * as jspb from "google-protobuf";
 
 export class ResponseMessage extends jspb.Message {
-  getBody(): string;
-  setBody(value: string): void;
+  getBody(): Uint8Array | string;
+  getBody_asU8(): Uint8Array;
+  getBody_asB64(): string;
+  setBody(value: Uint8Array | string): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ResponseMessage.AsObject;
@@ -19,7 +21,7 @@ export class ResponseMessage extends jspb.Message {
 
 export namespace ResponseMessage {
   export type AsObject = {
-    body: string,
+    body: Uint8Array | string,
   }
 }
 
