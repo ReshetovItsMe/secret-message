@@ -7,6 +7,11 @@ const messageRoutes: Array<ServerRoute> = [
         path: '/message',
         handler: messageHandler.sendMessage,
     },
+    {
+        method: 'GET',
+        path: '/message',
+        handler: messageHandler.getMessage,
+    },
 ];
 
 export default messageRoutes;

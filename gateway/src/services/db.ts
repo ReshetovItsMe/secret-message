@@ -10,17 +10,17 @@ const redis = new Redis({
     db: process.env.REDIS_DB ? Number(process.env.REDIS_DB) : 0, // Defaults to 0
 });
 
-const addMessage = (message: string): string => {
+const addMessage = async (message: Uint8Array): Promise<string> => {
     logger.info('Adding message');
     const id = uuid();
     logger.trace(`Message id ${id}`);
-    redis.set(uuid(), message);
+    await redis.set(id, Buffer.from(message));
     return id;
 };
 
-const getMessage = async (id: string): Promise<string> => {
+const getMessage = async (id: string): Promise<Buffer> => {
     logger.trace(`Get message id ${id}`);
-    const message = await redis.get(id);
+    const message = await redis.getBuffer(id);
     if (message) {
         return message;
     }
