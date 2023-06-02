@@ -4,11 +4,29 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha256"
 	"io"
 )
 
-func Encrypt(text string) ([]byte, error) {
-	key := "my32digitkey12345678901234567890"
+type EncryptedMessage struct {
+	EncryptedKey []byte
+	Data         []byte
+}
+
+// Generates AES key with random length (16, 24 or 32 bytes)
+func generateAESKey(size int) []byte {
+	key := make([]byte, size)
+	_, err := rand.Read(key)
+	if err != nil {
+		panic(err)
+	}
+	return key
+}
+
+// Encrypt Text using AES
+func encryptText(text string, aesKey []byte) ([]byte, error) {
+	key := generateAESKey(32)
 
 	block, aesErr := aes.NewCipher([]byte(key))
 	if aesErr != nil {
@@ -29,4 +47,35 @@ func Encrypt(text string) ([]byte, error) {
 	ciphertext := gcm.Seal(nonce, nonce, []byte(text), nil)
 
 	return ciphertext, nil
+}
+
+// AES key encryption using RSA
+func encryptAESKey(aesKey []byte) ([]byte, error) {
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return nil, err
+	}
+	publicKey := &privateKey.PublicKey
+	encryptedAESKey, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey, aesKey, nil)
+	if err != nil {
+		return nil, err
+	}
+	return encryptedAESKey, err
+}
+
+func Encrypt(text string) (*EncryptedMessage, error) {
+	aesKey := generateAESKey(32)
+
+	encryptedData, err := encryptText(text, aesKey)
+	if err != nil {
+		return nil, err
+	}
+
+	encryptedAESKey, err := encryptAESKey(aesKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return &EncryptedMessage{encryptedAESKey, encryptedData}, nil
+
 }

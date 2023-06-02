@@ -30,7 +30,8 @@ func (s *server) Encrypt(ctx context.Context, in *api.EncryptRequestMessage) (*a
 	if err != nil {
 		return nil, err
 	}
-	return &api.EncryptedMessageResponse{Body: ciphertext}, nil
+
+	return &api.EncryptedMessageResponse{Body: ciphertext.Data}, nil
 }
 
 func (s *server) Decrypt(ctx context.Context, in *api.DecryptRequestMessage) (*api.DecryptedMessageResponse, error) {
