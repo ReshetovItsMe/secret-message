@@ -135,7 +135,8 @@ proto.main.EncryptedMessageResponse.prototype.toObject = function(opt_includeIns
  */
 proto.main.EncryptedMessageResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    body: msg.getBody_asB64()
+    encryptedkey: msg.getEncryptedkey_asB64(),
+    data: msg.getData_asB64()
   };
 
   if (includeInstance) {
@@ -174,7 +175,11 @@ proto.main.EncryptedMessageResponse.deserializeBinaryFromReader = function(msg, 
     switch (field) {
     case 1:
       var value = /** @type {!Uint8Array} */ (reader.readBytes());
-      msg.setBody(value);
+      msg.setEncryptedkey(value);
+      break;
+    case 2:
+      var value = /** @type {!Uint8Array} */ (reader.readBytes());
+      msg.setData(value);
       break;
     default:
       reader.skipField();
@@ -205,10 +210,17 @@ proto.main.EncryptedMessageResponse.prototype.serializeBinary = function() {
  */
 proto.main.EncryptedMessageResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getBody_asU8();
+  f = message.getEncryptedkey_asU8();
   if (f.length > 0) {
     writer.writeBytes(
       1,
+      f
+    );
+  }
+  f = message.getData_asU8();
+  if (f.length > 0) {
+    writer.writeBytes(
+      2,
       f
     );
   }
@@ -216,35 +228,35 @@ proto.main.EncryptedMessageResponse.serializeBinaryToWriter = function(message, 
 
 
 /**
- * optional bytes body = 1;
+ * optional bytes encryptedKey = 1;
  * @return {!(string|Uint8Array)}
  */
-proto.main.EncryptedMessageResponse.prototype.getBody = function() {
+proto.main.EncryptedMessageResponse.prototype.getEncryptedkey = function() {
   return /** @type {!(string|Uint8Array)} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /**
- * optional bytes body = 1;
- * This is a type-conversion wrapper around `getBody()`
+ * optional bytes encryptedKey = 1;
+ * This is a type-conversion wrapper around `getEncryptedkey()`
  * @return {string}
  */
-proto.main.EncryptedMessageResponse.prototype.getBody_asB64 = function() {
+proto.main.EncryptedMessageResponse.prototype.getEncryptedkey_asB64 = function() {
   return /** @type {string} */ (jspb.Message.bytesAsB64(
-      this.getBody()));
+      this.getEncryptedkey()));
 };
 
 
 /**
- * optional bytes body = 1;
+ * optional bytes encryptedKey = 1;
  * Note that Uint8Array is not supported on all browsers.
  * @see http://caniuse.com/Uint8Array
- * This is a type-conversion wrapper around `getBody()`
+ * This is a type-conversion wrapper around `getEncryptedkey()`
  * @return {!Uint8Array}
  */
-proto.main.EncryptedMessageResponse.prototype.getBody_asU8 = function() {
+proto.main.EncryptedMessageResponse.prototype.getEncryptedkey_asU8 = function() {
   return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
-      this.getBody()));
+      this.getEncryptedkey()));
 };
 
 
@@ -252,8 +264,50 @@ proto.main.EncryptedMessageResponse.prototype.getBody_asU8 = function() {
  * @param {!(string|Uint8Array)} value
  * @return {!proto.main.EncryptedMessageResponse} returns this
  */
-proto.main.EncryptedMessageResponse.prototype.setBody = function(value) {
+proto.main.EncryptedMessageResponse.prototype.setEncryptedkey = function(value) {
   return jspb.Message.setProto3BytesField(this, 1, value);
+};
+
+
+/**
+ * optional bytes data = 2;
+ * @return {!(string|Uint8Array)}
+ */
+proto.main.EncryptedMessageResponse.prototype.getData = function() {
+  return /** @type {!(string|Uint8Array)} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/**
+ * optional bytes data = 2;
+ * This is a type-conversion wrapper around `getData()`
+ * @return {string}
+ */
+proto.main.EncryptedMessageResponse.prototype.getData_asB64 = function() {
+  return /** @type {string} */ (jspb.Message.bytesAsB64(
+      this.getData()));
+};
+
+
+/**
+ * optional bytes data = 2;
+ * Note that Uint8Array is not supported on all browsers.
+ * @see http://caniuse.com/Uint8Array
+ * This is a type-conversion wrapper around `getData()`
+ * @return {!Uint8Array}
+ */
+proto.main.EncryptedMessageResponse.prototype.getData_asU8 = function() {
+  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
+      this.getData()));
+};
+
+
+/**
+ * @param {!(string|Uint8Array)} value
+ * @return {!proto.main.EncryptedMessageResponse} returns this
+ */
+proto.main.EncryptedMessageResponse.prototype.setData = function(value) {
+  return jspb.Message.setProto3BytesField(this, 2, value);
 };
 
 

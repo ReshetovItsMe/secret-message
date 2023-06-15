@@ -18,6 +18,16 @@ const addMessage = async (message: Uint8Array): Promise<string> => {
     return id;
 };
 
+const addEncryptionKey = async (
+    id: string,
+    key: Uint8Array
+): Promise<string> => {
+    logger.info('Adding encryption key');
+    logger.trace(`Key id ${id}`);
+    await redis.set(id, Buffer.from(key));
+    return id;
+};
+
 const getMessage = async (id: string): Promise<Buffer> => {
     logger.trace(`Get message id ${id}`);
     const message = await redis.getBuffer(id);
@@ -27,4 +37,4 @@ const getMessage = async (id: string): Promise<Buffer> => {
     throw new Error(`Message with id=${id} doesn't exist`);
 };
 
-export default { addMessage, getMessage };
+export default { addMessage, getMessage, addEncryptionKey };

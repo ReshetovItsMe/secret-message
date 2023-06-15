@@ -26,12 +26,12 @@ type server struct {
 func (s *server) Encrypt(ctx context.Context, in *api.EncryptRequestMessage) (*api.EncryptedMessageResponse, error) {
 	text := in.GetBody()
 	log.Printf("Received some message to encrypt")
-	ciphertext, err := enc.Encrypt(text)
+	cipheredTextAndKey, err := enc.Encrypt(text)
 	if err != nil {
 		return nil, err
 	}
 
-	return &api.EncryptedMessageResponse{Body: ciphertext.Data}, nil
+	return &api.EncryptedMessageResponse{EncryptedKey: cipheredTextAndKey.EncryptedKey, Data: cipheredTextAndKey.Data}, nil
 }
 
 func (s *server) Decrypt(ctx context.Context, in *api.DecryptRequestMessage) (*api.DecryptedMessageResponse, error) {

@@ -4,6 +4,7 @@ import { db, secretAssistant } from '../services';
 import {
     EncryptRequestMessage,
     DecryptRequestMessage,
+    EncryptedMessageResponse,
 } from '../../proto/message_pb';
 
 const sendMessage: Lifecycle.Method = async (request, h) => {
@@ -16,7 +17,7 @@ const sendMessage: Lifecycle.Method = async (request, h) => {
         const reqMessage: EncryptRequestMessage = new EncryptRequestMessage();
         reqMessage.setBody(message);
 
-        const encryptedMessage: Uint8Array = await new Promise(
+        const encryptedMessage: EncryptedMessageResponse = await new Promise(
             (resolve, reject) => {
                 secretAssistant.encrypt(reqMessage, (error, newMessage) => {
                     if (error) {
@@ -27,13 +28,19 @@ const sendMessage: Lifecycle.Method = async (request, h) => {
                         reject(new Error('Encrypted message is empty'));
                         return;
                     }
-                    resolve(newMessage.getBody() as Uint8Array);
+                    resolve(newMessage);
                 });
             }
         );
         logger.info('Encrypted');
 
-        const id = await db.addMessage(encryptedMessage);
+        const id = await db.addMessage(
+            encryptedMessage.getData() as Uint8Array
+        );
+        await db.addEncryptionKey(
+            id,
+            encryptedMessage.getEncryptedkey() as Uint8Array
+        );
 
         return h.response({ messageId: id }).code(201);
     } catch (error: unknown) {
