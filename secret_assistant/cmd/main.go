@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -8,6 +9,7 @@ import (
 
 	dec "github.com/ReshetovItsMe/one-time-messaging-exchange-be/internal/decrypt"
 	enc "github.com/ReshetovItsMe/one-time-messaging-exchange-be/internal/encrypt"
+	m "github.com/ReshetovItsMe/one-time-messaging-exchange-be/pkg/messages"
 	api "github.com/ReshetovItsMe/one-time-messaging-exchange-be/proto"
 
 	"golang.org/x/net/context"
@@ -31,13 +33,25 @@ func (s *server) Encrypt(ctx context.Context, in *api.EncryptRequestMessage) (*a
 		return nil, err
 	}
 
-	return &api.EncryptedMessageResponse{EncryptedKey: cipheredTextAndKey.EncryptedKey, Data: cipheredTextAndKey.Data}, nil
+	encodedMessage, err := json.Marshal(cipheredTextAndKey)
+	if err != nil {
+		panic(err)
+	}
+
+	return &api.EncryptedMessageResponse{Body: encodedMessage}, nil
 }
 
 func (s *server) Decrypt(ctx context.Context, in *api.DecryptRequestMessage) (*api.DecryptedMessageResponse, error) {
-	text := in.GetBody()
+	encodedMessage := in.GetBody()
 	log.Printf("Received some message to decrypt")
-	unwrappedText, err := dec.Decrypt(text)
+
+	decodedMessage := &m.EncryptedMessage{}
+	err := json.Unmarshal(encodedMessage, decodedMessage)
+	if err != nil {
+		panic(err)
+	}
+
+	unwrappedText, err := dec.Decrypt(decodedMessage)
 	if err != nil {
 		return nil, err
 	}

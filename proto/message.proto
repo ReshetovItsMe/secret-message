@@ -10,8 +10,7 @@ service SecretAssistant {
 }
 
 message EncryptedMessageResponse {
-  bytes encryptedKey = 1;
-  bytes data = 2;
+  bytes body = 1;
 }
 
 message DecryptedMessageResponse {

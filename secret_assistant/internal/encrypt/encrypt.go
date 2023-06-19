@@ -7,12 +7,9 @@ import (
 	"crypto/rsa"
 	"crypto/sha256"
 	"io"
-)
 
-type EncryptedMessage struct {
-	EncryptedKey []byte
-	Data         []byte
-}
+	m "github.com/ReshetovItsMe/one-time-messaging-exchange-be/pkg/messages"
+)
 
 // Generates AES key with random length (16, 24 or 32 bytes)
 func generateAESKey(size int) []byte {
@@ -50,20 +47,20 @@ func encryptText(text string, aesKey []byte) ([]byte, error) {
 }
 
 // AES key encryption using RSA
-func encryptAESKey(aesKey []byte) ([]byte, error) {
+func encryptAESKey(aesKey []byte) ([]byte, *rsa.PrivateKey, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	publicKey := &privateKey.PublicKey
 	encryptedAESKey, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey, aesKey, nil)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return encryptedAESKey, err
+	return encryptedAESKey, privateKey, err
 }
 
-func Encrypt(text string) (*EncryptedMessage, error) {
+func Encrypt(text string) (*m.EncryptedMessage, error) {
 	aesKey := generateAESKey(32)
 
 	encryptedData, err := encryptText(text, aesKey)
@@ -71,11 +68,11 @@ func Encrypt(text string) (*EncryptedMessage, error) {
 		return nil, err
 	}
 
-	encryptedAESKey, err := encryptAESKey(aesKey)
+	encryptedAESKey, privateKey, err := encryptAESKey(aesKey)
 	if err != nil {
 		return nil, err
 	}
 
-	return &EncryptedMessage{encryptedAESKey, encryptedData}, nil
+	return &m.EncryptedMessage{PrivateKey: privateKey, EncryptedKey: encryptedAESKey, Data: encryptedData}, nil
 
 }

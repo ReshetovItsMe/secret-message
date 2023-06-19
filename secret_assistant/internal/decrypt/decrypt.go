@@ -3,10 +3,23 @@ package cryptography
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rand"
+	rsa "crypto/rsa"
+	"crypto/sha256"
+
+	m "github.com/ReshetovItsMe/one-time-messaging-exchange-be/pkg/messages"
 )
 
-func Decrypt(text []byte) (string, error) {
-	key := "my32digitkey12345678901234567890"
+// AES key decryption using RSA
+func decryptAESKey(privateKey *rsa.PrivateKey, aesKey []byte) ([]byte, error) {
+	return rsa.DecryptOAEP(sha256.New(), rand.Reader, privateKey, aesKey, nil)
+}
+
+func Decrypt(message *m.EncryptedMessage) (string, error) {
+	key, err := decryptAESKey(message.PrivateKey, message.EncryptedKey)
+	if err != nil {
+		return "", err
+	}
 
 	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
@@ -19,11 +32,11 @@ func Decrypt(text []byte) (string, error) {
 	}
 
 	nonceSize := gcm.NonceSize()
-	if len(text) < nonceSize {
+	if len(message.Data) < nonceSize {
 		return "", err
 	}
 
-	nonce, ciphertext := text[:nonceSize], text[nonceSize:]
+	nonce, ciphertext := message.Data[:nonceSize], message.Data[nonceSize:]
 
 	plaintext, err := gcm.Open(nil, []byte(nonce), []byte(ciphertext), nil)
 	if err != nil {
