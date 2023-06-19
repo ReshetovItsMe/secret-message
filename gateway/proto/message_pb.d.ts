@@ -4,15 +4,10 @@
 import * as jspb from "google-protobuf";
 
 export class EncryptedMessageResponse extends jspb.Message {
-  getEncryptedkey(): Uint8Array | string;
-  getEncryptedkey_asU8(): Uint8Array;
-  getEncryptedkey_asB64(): string;
-  setEncryptedkey(value: Uint8Array | string): void;
-
-  getData(): Uint8Array | string;
-  getData_asU8(): Uint8Array;
-  getData_asB64(): string;
-  setData(value: Uint8Array | string): void;
+  getBody(): Uint8Array | string;
+  getBody_asU8(): Uint8Array;
+  getBody_asB64(): string;
+  setBody(value: Uint8Array | string): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): EncryptedMessageResponse.AsObject;
@@ -26,8 +21,7 @@ export class EncryptedMessageResponse extends jspb.Message {
 
 export namespace EncryptedMessageResponse {
   export type AsObject = {
-    encryptedkey: Uint8Array | string,
-    data: Uint8Array | string,
+    body: Uint8Array | string,
   }
 }
 

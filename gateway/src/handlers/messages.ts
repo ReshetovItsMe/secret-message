@@ -7,6 +7,11 @@ import {
     EncryptedMessageResponse,
 } from '../../proto/message_pb';
 
+interface DecodedEncryptedMessage {
+    PrivateKey: Uint8Array;
+    EncryptedKey: Uint8Array;
+    Data: Uint8Array;
+}
 const sendMessage: Lifecycle.Method = async (request, h) => {
     try {
         logger.info('Got new request for add message');
@@ -34,13 +39,16 @@ const sendMessage: Lifecycle.Method = async (request, h) => {
         );
         logger.info('Encrypted');
 
-        const id = await db.addMessage(
-            encryptedMessage.getData() as Uint8Array
+        const decodedMessage: DecodedEncryptedMessage = JSON.parse(
+            encryptedMessage.getBody() as string
         );
-        await db.addEncryptionKey(
-            id,
-            encryptedMessage.getEncryptedkey() as Uint8Array
+
+        const id = await db.addEncryptionKey(decodedMessage.EncryptedKey);
+        await db.addData(
+            decodedMessage.EncryptedKey,
+            decodedMessage.PrivateKey
         );
+        await db.addData(decodedMessage.PrivateKey, decodedMessage.Data);
 
         return h.response({ messageId: id }).code(201);
     } catch (error: unknown) {
@@ -59,10 +67,17 @@ const getMessage: Lifecycle.Method = async (request, h) => {
 
         logger.info('Start decryption');
 
-        const message = await db.getMessage(messageId);
+        const encryptedKey = await db.getData(messageId);
+        const privateKey = await db.getData(encryptedKey);
+        const message = await db.getData(privateKey);
 
         const reqMessage: DecryptRequestMessage = new DecryptRequestMessage();
-        reqMessage.setBody(message);
+        const body: DecodedEncryptedMessage = {
+            PrivateKey: privateKey,
+            EncryptedKey: encryptedKey,
+            Data: message,
+        };
+        reqMessage.setBody(JSON.stringify(body));
 
         const decryptedMessage: Uint8Array | string = await new Promise(
             (resolve, reject) => {
