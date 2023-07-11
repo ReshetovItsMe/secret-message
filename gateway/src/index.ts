@@ -6,7 +6,6 @@ import Pretty from 'pino-pretty';
 import HapiSwagger from 'hapi-swagger';
 import Inert from '@hapi/inert';
 import Vision from '@hapi/vision';
-import Package from '../package.json';
 
 const pretty = Pretty({
     colorize: true,
@@ -21,7 +20,6 @@ export const init = async (): Promise<Server> => {
     const swaggerOptions: HapiSwagger.RegisterOptions = {
         info: {
             title: 'Secret Message Gateway API Documentation',
-            version: Package.version,
         },
     };
 
