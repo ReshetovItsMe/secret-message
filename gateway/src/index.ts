@@ -1,7 +1,12 @@
-import Hapi, { Server } from '@hapi/hapi';
+import Hapi, { Plugin, Server } from '@hapi/hapi';
 import Pino from 'hapi-pino';
 import logger from './logger';
 import { message } from './routes';
+import Pretty from 'pino-pretty';
+
+const pretty = Pretty({
+    colorize: true,
+});
 
 export const init = async (): Promise<Server> => {
     const server = Hapi.server({
@@ -18,7 +23,10 @@ export const init = async (): Promise<Server> => {
         },
     });
 
-    await server.register(Pino);
+    await server.register({
+        plugin: Pino as Plugin<unknown>,
+        options: { stream: pretty },
+    });
     server.log(`Listening on ${server.settings.host}:${server.settings.port}`);
 
     await server.start();
