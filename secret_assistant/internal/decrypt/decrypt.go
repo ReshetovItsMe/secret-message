@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	rsa "crypto/rsa"
 	"crypto/sha256"
+	"encoding/json"
 
 	m "github.com/ReshetovItsMe/one-time-messaging-exchange-be/pkg/messages"
 )
@@ -16,12 +17,16 @@ func decryptAESKey(privateKey *rsa.PrivateKey, aesKey []byte) ([]byte, error) {
 }
 
 func Decrypt(message *m.EncryptedMessage) (string, error) {
-	key, err := decryptAESKey(message.PrivateKey, message.EncryptedKey)
+	var privateKey *rsa.PrivateKey
+
+	err := json.Unmarshal(message.PrivateKey, &privateKey)
+
+	key, err := decryptAESKey(privateKey, message.EncryptedKey)
 	if err != nil {
 		return "", err
 	}
 
-	block, err := aes.NewCipher([]byte(key))
+	block, err := aes.NewCipher(key)
 	if err != nil {
 		return "", err
 	}
@@ -38,7 +43,7 @@ func Decrypt(message *m.EncryptedMessage) (string, error) {
 
 	nonce, ciphertext := message.Data[:nonceSize], message.Data[nonceSize:]
 
-	plaintext, err := gcm.Open(nil, []byte(nonce), []byte(ciphertext), nil)
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
 		return "", err
 	}

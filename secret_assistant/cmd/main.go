@@ -34,8 +34,9 @@ func (s *server) Encrypt(ctx context.Context, in *api.EncryptRequestMessage) (*a
 	}
 
 	encodedMessage, err := json.Marshal(cipheredTextAndKey)
+
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	return &api.EncryptedMessageResponse{Body: encodedMessage}, nil
@@ -46,9 +47,10 @@ func (s *server) Decrypt(ctx context.Context, in *api.DecryptRequestMessage) (*a
 	log.Printf("Received some message to decrypt")
 
 	decodedMessage := &m.EncryptedMessage{}
-	err := json.Unmarshal(encodedMessage, decodedMessage)
+
+	err := json.Unmarshal(encodedMessage, &decodedMessage)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	unwrappedText, err := dec.Decrypt(decodedMessage)

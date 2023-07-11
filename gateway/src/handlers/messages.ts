@@ -8,10 +8,11 @@ import {
 } from '../../proto/message_pb';
 
 interface DecodedEncryptedMessage {
-    PrivateKey: Uint8Array;
-    EncryptedKey: Uint8Array;
-    Data: Uint8Array;
+    privateKey: Uint8Array;
+    encryptedKey: Uint8Array;
+    data: Uint8Array;
 }
+
 const sendMessage: Lifecycle.Method = async (request, h) => {
     try {
         logger.info('Got new request for add message');
@@ -39,16 +40,24 @@ const sendMessage: Lifecycle.Method = async (request, h) => {
         );
         logger.info('Encrypted');
 
-        const decodedMessage: DecodedEncryptedMessage = JSON.parse(
-            encryptedMessage.getBody() as string
-        );
+        const jsonString = Buffer.from(encryptedMessage.getBody()).toString();
 
-        const id = await db.addEncryptionKey(decodedMessage.EncryptedKey);
+        let decodedMessage: DecodedEncryptedMessage = JSON.parse(jsonString);
+
+        decodedMessage = {
+            encryptedKey: new Uint8Array(
+                Buffer.from(decodedMessage.encryptedKey)
+            ),
+            privateKey: new Uint8Array(Buffer.from(decodedMessage.privateKey)),
+            data: new Uint8Array(Buffer.from(decodedMessage.data)),
+        };
+
+        const id = await db.addEncryptionKey(decodedMessage.encryptedKey);
         await db.addData(
-            decodedMessage.EncryptedKey,
-            decodedMessage.PrivateKey
+            decodedMessage.encryptedKey,
+            decodedMessage.privateKey
         );
-        await db.addData(decodedMessage.PrivateKey, decodedMessage.Data);
+        await db.addData(decodedMessage.privateKey, decodedMessage.data);
 
         return h.response({ messageId: id }).code(201);
     } catch (error: unknown) {
@@ -72,12 +81,14 @@ const getMessage: Lifecycle.Method = async (request, h) => {
         const message = await db.getData(privateKey);
 
         const reqMessage: DecryptRequestMessage = new DecryptRequestMessage();
-        const body: DecodedEncryptedMessage = {
-            PrivateKey: privateKey,
-            EncryptedKey: encryptedKey,
-            Data: message,
+
+        const body = {
+            privateKey: privateKey.toString(),
+            encryptedKey: encryptedKey.toString(),
+            data: message.toString(),
         };
-        reqMessage.setBody(JSON.stringify(body));
+
+        reqMessage.setBody(Buffer.from(JSON.stringify(body)));
 
         const decryptedMessage: Uint8Array | string = await new Promise(
             (resolve, reject) => {

@@ -1,9 +1,7 @@
 package messages
 
-import "crypto/rsa"
-
 type EncryptedMessage struct {
-	PrivateKey   *rsa.PrivateKey
-	EncryptedKey []byte
-	Data         []byte
+	PrivateKey   []byte `json:"privateKey"`
+	EncryptedKey []byte `json:"encryptedKey"`
+	Data         []byte `json:"data"`
 }

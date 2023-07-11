@@ -6,26 +6,25 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
+	"encoding/json"
 	"io"
 
 	m "github.com/ReshetovItsMe/one-time-messaging-exchange-be/pkg/messages"
 )
 
 // Generates AES key with random length (16, 24 or 32 bytes)
-func generateAESKey(size int) []byte {
+func generateAESKey(size int) ([]byte, error) {
 	key := make([]byte, size)
 	_, err := rand.Read(key)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return key
+	return key, nil
 }
 
 // Encrypt Text using AES
 func encryptText(text string, aesKey []byte) ([]byte, error) {
-	key := generateAESKey(32)
-
-	block, aesErr := aes.NewCipher([]byte(key))
+	block, aesErr := aes.NewCipher([]byte(aesKey))
 	if aesErr != nil {
 		return nil, aesErr
 	}
@@ -47,7 +46,7 @@ func encryptText(text string, aesKey []byte) ([]byte, error) {
 }
 
 // AES key encryption using RSA
-func encryptAESKey(aesKey []byte) ([]byte, *rsa.PrivateKey, error) {
+func encryptAESKey(aesKey []byte) ([]byte, []byte, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return nil, nil, err
@@ -57,11 +56,16 @@ func encryptAESKey(aesKey []byte) ([]byte, *rsa.PrivateKey, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	return encryptedAESKey, privateKey, err
+	privateKeyBytes, _ := json.Marshal(privateKey)
+
+	return encryptedAESKey, privateKeyBytes, err
 }
 
 func Encrypt(text string) (*m.EncryptedMessage, error) {
-	aesKey := generateAESKey(32)
+	aesKey, err := generateAESKey(32)
+	if err != nil {
+		return nil, err
+	}
 
 	encryptedData, err := encryptText(text, aesKey)
 	if err != nil {
@@ -73,6 +77,7 @@ func Encrypt(text string) (*m.EncryptedMessage, error) {
 		return nil, err
 	}
 
-	return &m.EncryptedMessage{PrivateKey: privateKey, EncryptedKey: encryptedAESKey, Data: encryptedData}, nil
+	output := &m.EncryptedMessage{PrivateKey: privateKey, EncryptedKey: encryptedAESKey, Data: encryptedData}
 
+	return output, nil
 }

@@ -10,7 +10,7 @@
         "build": "tsc",
         "build:proto": "rimraf ../proto/generated/* && sh ./scripts/build-protos.sh",
         "prettier:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
-        "start": "nodemon ./src/index.ts",
+        "start": "REDIS_HOST=localhost SECRET_ASSISTANT_URL=localhost:50052 nodemon ./src/index.ts",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
         "test": "jest --passWithNoTests",
         "test:watch": "jest --watch",
