@@ -4,7 +4,7 @@ import logger from '../logger';
 
 const redis = new Redis({
     port: Number(process.env.REDIS_PORT) || 6379, // Redis port
-    host: process.env.REDIS_HOST || 'localhost', // Redis host
+    host: process.env.REDIS_HOST || 'redis', // Redis host
     username: process.env.REDIS_USERNAME, // needs Redis >= 6
     password: process.env.REDIS_PASSWORD,
     db: process.env.REDIS_DB ? Number(process.env.REDIS_DB) : 0, // Defaults to 0
