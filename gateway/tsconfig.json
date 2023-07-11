@@ -1,31 +1,24 @@
 {
-  "compilerOptions": {
-    "declaration": true,
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "target": "es2019",
-    "noImplicitAny": true,
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "outDir": "dist",
-    "baseUrl": ".",
-    "paths": {
-      "*": [
-        "node_modules/*",
-      ]
+    "compilerOptions": {
+        "resolveJsonModule": true,
+        "declaration": true,
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "target": "es2019",
+        "noImplicitAny": true,
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "outDir": "dist",
+        "baseUrl": ".",
+        "paths": {
+            "*": ["node_modules/*"]
+        },
+        "typeRoots": ["node_modules/@types"],
+        "strict": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictBindCallApply": true,
+        "lib": ["es2020"]
     },
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "strict": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "lib": [
-      "es2020"
-    ]
-  },
-  "include": [
-    "src/**/*"
-  ]
+    "include": ["src/**/*"]
 }

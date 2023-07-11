@@ -3,6 +3,10 @@ import Pino from 'hapi-pino';
 import logger from './logger';
 import { message } from './routes';
 import Pretty from 'pino-pretty';
+import HapiSwagger from 'hapi-swagger';
+import Inert from '@hapi/inert';
+import Vision from '@hapi/vision';
+import Package from '../package.json';
 
 const pretty = Pretty({
     colorize: true,
@@ -13,6 +17,28 @@ export const init = async (): Promise<Server> => {
         port: process.env.PORT || 3000,
         host: process.env.HOST || 'localhost',
     });
+
+    const swaggerOptions: HapiSwagger.RegisterOptions = {
+        info: {
+            title: 'Secret Message Gateway API Documentation',
+            version: Package.version,
+        },
+    };
+
+    const plugins: Array<Hapi.ServerRegisterPluginObject<any>> = [
+        {
+            plugin: Inert,
+        },
+        {
+            plugin: Vision,
+        },
+        {
+            plugin: HapiSwagger,
+            options: swaggerOptions,
+        },
+    ];
+
+    await server.register(plugins);
 
     server.route(message);
     server.route({
