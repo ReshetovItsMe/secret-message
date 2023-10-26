@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
+
 const textarea = ref('');
+const placeholder: string =
+    '- Write your secret and hit "Share" button. 🔘 \n- The link will be available 24 or until opened. ⏱️ \n- All data is encrypted. 🤫 \n- Tell your friends about us! 🕺';
 </script>
 
 <template>
@@ -8,9 +11,9 @@ const textarea = ref('');
         <textarea
             v-model="textarea"
             class="form-control"
-            placeholder="Hello, input here"
+            :placeholder="placeholder"
         ></textarea>
-        <el-button class="procceed-button" type="primary">Primary</el-button>
+        <el-button class="procceed-button" type="primary">Share</el-button>
     </div>
 </template>
 
