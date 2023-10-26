@@ -28,10 +28,16 @@ import SecretInput from './components/SecretInput.vue';
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-direction: column;
+    }
+
+    .el-container {
+        padding: 15px;
     }
 
     .secret-input {
-        width: 50%;
+        flex: 1;
+        width: 80%;
     }
 }
 </style>

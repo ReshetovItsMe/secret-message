@@ -5,13 +5,11 @@ const textarea = ref('');
 
 <template>
     <div class="input-block">
-        <el-input
+        <textarea
             v-model="textarea"
-            :rows="15"
-            type="textarea"
-            resize="none"
-            placeholder="Please input"
-        />
+            class="form-control"
+            placeholder="Hello, input here"
+        ></textarea>
         <el-button class="procceed-button" type="primary">Primary</el-button>
     </div>
 </template>
@@ -20,6 +18,13 @@ const textarea = ref('');
 .input-block {
     display: flex;
     flex-direction: column;
+}
+
+.form-control {
+    resize: none;
+    height: 100%;
+    width: 100%;
+    flex: 1;
 }
 
 .procceed-button {

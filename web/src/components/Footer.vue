@@ -7,13 +7,13 @@ import linkedin from '../assets/linkedin.png';
 <template>
     <div class="footer">
         <div class="logo-wrapper" key="scale-down">
-            <el-image style="width: 50%" :src="code" fit="scale-down" />
+            <el-image class="image" :src="code" fit="scale-down" />
         </div>
         <div class="logo-wrapper" key="scale-down">
-            <el-image style="width: 50%" :src="github" fit="scale-down" />
+            <el-image class="image" :src="github" fit="scale-down" />
         </div>
         <div class="logo-wrapper" key="scale-down">
-            <el-image style="width: 50%" :src="linkedin" fit="scale-down" />
+            <el-image class="image" :src="linkedin" fit="scale-down" />
         </div>
     </div>
 </template>
@@ -21,10 +21,16 @@ import linkedin from '../assets/linkedin.png';
 <style scoped>
 .logo-wrapper {
     display: flex;
-    padding: 0 10px;
+    padding: 0 5px;
 }
 .footer {
     display: flex;
     justify-content: flex-end;
+    height: 100%;
+}
+
+.image {
+    height: 50%;
+    margin: auto;
 }
 </style>
