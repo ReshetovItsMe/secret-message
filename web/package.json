@@ -12,6 +12,8 @@
         "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false"
     },
     "dependencies": {
+        "@vueuse/core": "^10.7.2",
+        "axios": "^1.5.1",
         "element-plus": "^2.4.0",
         "register-service-worker": "^1.7.2",
         "vue": "^3.3.4"
