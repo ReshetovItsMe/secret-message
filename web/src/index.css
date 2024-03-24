@@ -8,6 +8,7 @@
   }
   
   #app, body {
+    font-family: var(--el-font-family);
     min-height: 100vh;
     line-height: 1.6;
   }

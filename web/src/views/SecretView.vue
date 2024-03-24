@@ -11,17 +11,19 @@ const secretId = computed(() => {
 
 <template>
     <div class="secret-container">
-        <p>Id of secret:</p>
-        <span>{{ secretId }}</span>
+        <p>SUPER LONG TEXT SUPER LONG TEXT SUPER LONG TEXT SUPER LONG TEXT</p>
     </div>
 </template>
 
 <style scoped>
 .secret-container {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    width: 100%;
+    background: var(--el-color-info-light-9);
+    border-radius: 10px 10px 10px 10px;
+    overflow-y: scroll;
+    padding: 15px;
+    text-align: center;
+    font-size: var(--el-font-size-medium);
+    max-height: 80%;
+    max-width: 70%;
 }
 </style>

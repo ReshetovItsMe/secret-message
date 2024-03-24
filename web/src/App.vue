@@ -21,7 +21,7 @@ import Header from './components/Header.vue';
 
 <style scoped>
 .common-layout {
-    min-height: 100vh;
+    height: 100vh;
 
     .el-main {
         display: flex;
