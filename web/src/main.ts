@@ -3,13 +3,18 @@ import { createApp } from 'vue';
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 import App from './App.vue';
-import { createMemoryHistory, createRouter } from 'vue-router';
+import { createWebHistory, createRouter } from 'vue-router';
 import MainView from './views/MainView.vue';
+import SecretView from './views/SecretView.vue';
 
-const routes = [{ path: '/', component: MainView }];
+const routes = [
+    { path: '/secret/:id', component: SecretView },
+    { path: '/', component: MainView },
+    { path: '/:pathMatch(.*)*', redirect: '/' },
+];
 
 const router = createRouter({
-    history: createMemoryHistory(),
+    history: createWebHistory(),
     routes,
 });
 
