@@ -1,17 +1,34 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import axios from 'axios';
+import { ElMessage } from 'element-plus';
+import { computed, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
+const secretId = computed(() => route.params.id ?? null);
+const store = {
+    state: reactive<{ secret?: string }>({
+        secret: undefined,
+    }),
 
-const secretId = computed(() => {
-    return route.params.id ?? null;
-});
+    setSecret(newValue: string) {
+        this.state.secret = newValue;
+    },
+};
+
+try {
+    const { data } = await axios.get('/message', {
+        params: { messageId: secretId.value },
+    });
+    store.setSecret(data);
+} catch (error) {
+    ElMessage.error(`No such secret id ${secretId.value}`);
+}
 </script>
 
 <template>
     <div class="secret-container">
-        <p>SUPER LONG TEXT SUPER LONG TEXT SUPER LONG TEXT SUPER LONG TEXT</p>
+        <p>{{ store.state.secret }}</p>
     </div>
 </template>
 

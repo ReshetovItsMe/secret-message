@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import axios from 'axios';
+import { ElMessage } from 'element-plus';
 
 const emit = defineEmits<{
     (e: 'returnSecretUrl', url: string): void;
@@ -12,10 +13,10 @@ const placeholder: string =
 
 const postSecret = async () => {
     try {
-        // const response = await axios.post('/message', message);
-        emit('returnSecretUrl', message.value);
+        const { data } = await axios.post('/message', message);
+        emit('returnSecretUrl', data);
     } catch (error) {
-        console.error(error);
+        ElMessage.error(`Cannot post secret: ${error}`);
     }
 };
 </script>

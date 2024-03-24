@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { CopyDocument } from '@element-plus/icons-vue';
 import { useClipboard } from '@vueuse/core';
 
@@ -11,9 +11,11 @@ const emit = defineEmits<{
     (e: 'makeNewSecret'): void;
 }>();
 
-const domain = window.location.origin;
-const fullUrl = `${domain}/${props.secretId}`;
-const textToCopy = ref(fullUrl);
+const fullUrl = computed(() => {
+    const domain = window.location.origin;
+    return `${domain}/${props.secretId}`;
+});
+const textToCopy = ref(fullUrl.value);
 
 const makeNewSecret = () => {
     try {
