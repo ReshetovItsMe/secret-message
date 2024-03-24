@@ -2,6 +2,8 @@
     "name": "secret-message",
     "version": "1.0.0",
     "private": true,
+    "repository": "https://github.com/ReshetovItsMe/one-time-messaging-exchange-be/web",
+    "author": "Vladislav Reshetov<reshetovitsme@gmail.com>",
     "scripts": {
         "build": "run-p type-check \"build-only {@}\" --",
         "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
