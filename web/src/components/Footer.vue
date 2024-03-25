@@ -6,15 +6,30 @@ import linkedin from '../assets/linkedin.png';
 
 <template>
     <div class="footer">
-        <div class="logo-wrapper" key="scale-down">
+        <a
+            class="logo-wrapper"
+            key="scale-down"
+            href="https://github.com/ReshetovItsMe/secret-message"
+            target="_blank"
+        >
             <el-image class="image" :src="code" fit="scale-down" />
-        </div>
-        <div class="logo-wrapper" key="scale-down">
+        </a>
+        <a
+            class="logo-wrapper"
+            key="scale-down"
+            href="https://github.com/ReshetovItsMe"
+            target="_blank"
+        >
             <el-image class="image" :src="github" fit="scale-down" />
-        </div>
-        <div class="logo-wrapper" key="scale-down">
+        </a>
+        <a
+            class="logo-wrapper"
+            key="scale-down"
+            href="https://www.linkedin.com/in/vladislav-reshetov/"
+            target="_blank"
+        >
             <el-image class="image" :src="linkedin" fit="scale-down" />
-        </div>
+        </a>
     </div>
 </template>
 
