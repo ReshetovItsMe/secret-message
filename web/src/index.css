@@ -1,0 +1,15 @@
+/* color palette from <https://github.com/vuejs/theme> */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    font-weight: normal;
+  }
+  
+  #app, body {
+    font-family: var(--el-font-family);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  

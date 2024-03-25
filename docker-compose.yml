@@ -1,8 +1,21 @@
 version: "3.6"
 
 services:
+  frontend:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    links:
+      - gateway
+    depends_on:
+      - redis
+      - secret-assistant
+      - gateway
+    networks:
+      - frontend-network
   gateway:
-    platform: linux/amd64
     build:
       context: ./gateway
       dockerfile: Dockerfile
@@ -10,6 +23,9 @@ services:
       - "3000:3000"
     expose:
       - "3000"
+    networks:
+      - frontend-network
+      - backend-network
     depends_on:
       - redis
       - secret-assistant
@@ -21,6 +37,8 @@ services:
       - "50052:50052"
     expose:
       - "50052"
+    networks:
+      - backend-network
   redis:
     image: redis:7-bullseye
     restart: always
@@ -28,3 +46,9 @@ services:
       - "6379:6379"
     expose:
       - "6379"
+    networks:
+      - backend-network
+
+networks:
+  frontend-network:
+  backend-network:

@@ -22,7 +22,3 @@ The service accepts text as input, encrypts it using RSA and AES encryption algo
 ## Contributing
 
 Thank you for considering contributing to this project! If you have any suggestions, bug reports, or improvements, feel free to open an issue or submit a pull request.
-
-## License
-
-This project is licensed under the NAME_OF_LICENSE_WILL_BE_HERE License. See the [LICENSE](LICENSE) file for more information.

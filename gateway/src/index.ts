@@ -14,7 +14,10 @@ const pretty = Pretty({
 export const init = async (): Promise<Server> => {
     const server = Hapi.server({
         port: process.env.PORT || 3000,
-        host: process.env.HOST || 'localhost',
+        host: process.env.HOST || '0.0.0.0',
+        routes: {
+            cors: true,
+        },
     });
 
     const swaggerOptions: HapiSwagger.RegisterOptions = {
