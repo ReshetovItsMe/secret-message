@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script async setup lang="ts">
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
 import { computed, reactive } from 'vue';
@@ -17,19 +17,21 @@ const store = {
 };
 
 try {
-    const { data } = await axios.get('/message', {
+    const { data } = await axios.get<{ message: string }>('/message', {
         params: { messageId: secretId.value },
     });
-    store.setSecret(data);
+    store.setSecret(data.message);
 } catch (error) {
     ElMessage.error(`No such secret id ${secretId.value}`);
 }
 </script>
 
 <template>
-    <div class="secret-container">
-        <p>{{ store.state.secret }}</p>
-    </div>
+    <Suspense>
+        <div class="secret-container">
+            <p>{{ store.state.secret }}</p>
+        </div>
+    </Suspense>
 </template>
 
 <style scoped>

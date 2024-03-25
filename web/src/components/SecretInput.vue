@@ -13,8 +13,11 @@ const placeholder: string =
 
 const postSecret = async () => {
     try {
-        const { data } = await axios.post('/message', message);
-        emit('returnSecretUrl', data);
+        const { data } = await axios.post<{ messageId: string }>('/message', {
+            message: message.value,
+        });
+
+        emit('returnSecretUrl', data.messageId);
     } catch (error) {
         ElMessage.error(`Cannot post secret: ${error}`);
     }

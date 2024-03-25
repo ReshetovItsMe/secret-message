@@ -10,7 +10,9 @@ import Header from './components/Header.vue';
                 <Header />
             </el-header>
             <el-main>
-                <RouterView />
+                <Suspense>
+                    <RouterView />
+                </Suspense>
             </el-main>
             <el-footer>
                 <Footer />

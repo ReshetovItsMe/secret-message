@@ -13,7 +13,7 @@ const emit = defineEmits<{
 
 const fullUrl = computed(() => {
     const domain = window.location.origin;
-    return `${domain}/${props.secretId}`;
+    return `${domain}/secret/${props.secretId}`;
 });
 const textToCopy = ref(fullUrl.value);
 

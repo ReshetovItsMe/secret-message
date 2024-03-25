@@ -15,6 +15,9 @@ export const init = async (): Promise<Server> => {
     const server = Hapi.server({
         port: process.env.PORT || 3000,
         host: process.env.HOST || 'localhost',
+        routes: {
+            cors: true,
+        },
     });
 
     const swaggerOptions: HapiSwagger.RegisterOptions = {
