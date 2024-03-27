@@ -5,7 +5,7 @@ on:
       - main
       - chore/build-ci
 jobs:
-  web:
+  frontend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -62,7 +62,7 @@ jobs:
         working-directory: ./secret_assistant/cmd
   push_to_docker_hub:
     runs-on: ubuntu-latest
-    needs: [gateway, secret_assistant]
+    needs: [frontend, gateway, secret_assistant]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -89,6 +89,13 @@ jobs:
           file: ./secret_assistant/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/secret-assistant:latest
+      - name: Build and push frontend
+        uses: docker/build-push-action@v2
+        with:
+          context: ./web
+          file: ./web/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/secret-frontend:latest
   deploy:
     runs-on: ubuntu-latest
     needs: [push_to_docker_hub]
