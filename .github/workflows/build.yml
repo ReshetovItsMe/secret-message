@@ -4,6 +4,24 @@ on:
     branches:
       - main
 jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: 📟 Downloading dependencies...
+        run: yarn install --frozen-lockfile
+        working-directory: ./web
+      - name: Building...
+        run: yarn build
+        working-directory: ./web
+      - name: Linting...
+        run: yarn lint
+        working-directory: ./web
   gateway:
     runs-on: ubuntu-latest
     steps:
@@ -14,7 +32,7 @@ jobs:
         with:
           node-version: 18
       - name: 📟 Downloading dependencies...
-        run: yarn install
+        run: yarn install --frozen-lockfile
         working-directory: ./gateway
       - name: Building...
         run: yarn build
