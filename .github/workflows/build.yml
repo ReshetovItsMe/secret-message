@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - chore/build-ci
 jobs:
   web:
     runs-on: ubuntu-latest
