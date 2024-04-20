@@ -3,9 +3,7 @@ version: "3.6"
 services:
   frontend:
     platform: linux/amd64
-    build:
-      context: ./web
-      dockerfile: Dockerfile
+    image: reshetovitsme/secret-frontend:latest
     ports:
       - "8080:80"
     expose:
