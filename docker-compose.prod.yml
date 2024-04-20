@@ -18,6 +18,8 @@ services:
       - frontend-network
   gateway:
     image: reshetovitsme/secret-gateway:latest
+    ports:
+      - "3000:3000"
     expose:
       - "3000"
     depends_on:

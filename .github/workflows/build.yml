@@ -3,7 +3,26 @@ on:
   push:
     branches:
       - main
+      - chore/build-ci
 jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: 📟 Downloading dependencies...
+        run: yarn install --frozen-lockfile
+        working-directory: ./web
+      - name: Building...
+        run: yarn build
+        working-directory: ./web
+      - name: Linting...
+        run: yarn lint
+        working-directory: ./web
   gateway:
     runs-on: ubuntu-latest
     steps:
@@ -14,7 +33,7 @@ jobs:
         with:
           node-version: 18
       - name: 📟 Downloading dependencies...
-        run: yarn install
+        run: yarn install --frozen-lockfile
         working-directory: ./gateway
       - name: Building...
         run: yarn build
@@ -43,7 +62,7 @@ jobs:
         working-directory: ./secret_assistant/cmd
   push_to_docker_hub:
     runs-on: ubuntu-latest
-    needs: [gateway, secret_assistant]
+    needs: [frontend, gateway, secret_assistant]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -70,6 +89,13 @@ jobs:
           file: ./secret_assistant/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/secret-assistant:latest
+      - name: Build and push frontend
+        uses: docker/build-push-action@v2
+        with:
+          context: ./web
+          file: ./web/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/secret-frontend:latest
   deploy:
     runs-on: ubuntu-latest
     needs: [push_to_docker_hub]
