@@ -8,7 +8,7 @@ import MainView from './views/MainView.vue';
 import SecretView from './views/SecretView.vue';
 import axios from 'axios';
 
-axios.defaults.baseURL = 'http://localhost:3000';
+axios.defaults.baseURL = '/api';
 
 const routes = [
     { path: '/secret/:id', component: SecretView },
