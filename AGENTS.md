@@ -11,7 +11,7 @@ If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is 
 
 # Secret Message
 
-Secure one-time file/text sharing service: content is encrypted (hybrid RSA + AES), a unique link is shared, the recipient decrypts it once, and (by design) all encrypted data is deleted after access.
+One-time secret-sharing service: plaintext is encrypted (hybrid RSA + AES), a unique link is shared, and the recipient decrypts it exactly once — the stored payload is atomically deleted on read.
 
 ## Architecture
 
@@ -21,85 +21,96 @@ Four components wired together with Docker Compose, communicating over gRPC and 
 Browser ──▶ web (Vue 3 + nginx, :8080)
               │  /api/* → gateway (nginx rewrite strips /api)
               ▼
-           gateway (Hapi.js / Node TS, :3000)
+           gateway (Go + chi, :3000)
               │  gRPC (insecure) ──▶ secret-assistant (Go, :50052)
               │                              │ encrypt/decrypt (RSA+AES)
               ▼                              ▼
-           redis (:6379)              proto/message.proto (single source of truth)
+           redis (:6379)              proto/message.proto (source of truth)
 ```
 
 **Data flow:**
 
-1. **POST /message** `{ "message": "text" }` — gateway calls gRPC `Encrypt` → gets `{ encryptedKey, privateKey, data }` (JSON), then stores three linked Redis entries:
-   - `<uuid>` → `encryptedKey` (the returned message id)
-   - `encryptedKey` → `privateKey`
-   - `privateKey` → `data`
-   Returns `201 { messageId: "<uuid>" }`.
-2. **GET /message?messageId=<uuid>** — gateway walks the Redis chain (id → encryptedKey → privateKey → data), calls gRPC `Decrypt`, returns `201 { message: "<decrypted text>" }`.
-3. Frontend shows the secret at `/secret/:id` (SPA route; axios base URL is `/api`).
+1. **POST /message** `{ "message": "text" }` — gateway calls gRPC `Encrypt` → secret-assistant returns a JSON `EncryptedMessage` (`privateKey` / `encryptedKey` / `data`, all `[]byte`), marshalled into the proto's `bytes body`. Gateway stores the whole payload under **one** Redis key `msg:<uuid>` with a TTL (default `24h`). Returns `201 { "messageId": "<uuid>" }`.
+2. **GET /message?messageId=<uuid>** — gateway atomically `GETDEL msg:<uuid>` (read + delete in one round trip = the one-time guarantee), calls gRPC `Decrypt`, returns `200 { "message": "..." }`. A missing/consumed id returns `404`.
+3. Frontend shows the secret at `/secret/:id` (SPA route; axios `baseURL` is `/api`).
+
+## ⚠️ Migration state (read before touching Docker/CI)
+
+The gateway was **rewritten from Node.js/Hapi to Go** (chi, `log/slog`, `go-redis`) in recent commits. Docker/CI have been migrated to the Go build:
+
+- `gateway/Dockerfile` is a multi-stage Go build (`golang:1.27-alpine` → `alpine`); `docker compose up --build` now builds the gateway correctly.
+- `.github/workflows/build.yml`'s `gateway` job runs `go mod download` / `go build` / `go vet` / `go test -race` (Go 1.27.x), not yarn.
+
+Remaining stale bits to be aware of:
+
+- `gateway/README.md` still describes the Node gateway (yarn scripts, `build:proto`). Trust `gateway/AGENTS.md` + the Go source instead.
+- `gateway/dist/` and `gateway/node_modules/` are leftover Node artifacts (git-ignored); harmless to delete.
+
+**Authoritative gateway docs:** `gateway/AGENTS.md` (layout, deep-module rules, testing) and `gateway/Makefile`. Follow those for the Go service.
 
 ## Tech Stack
 
 | Component | Location | Stack | Port |
 |---|---|---|---|
-| `web` (frontend) | `web/` | Vue 3 (`<script setup lang="ts">`), Vite, vue-router, element-plus, @vueuse/core, axios, PWA (register-service-worker), nginx SPA | 8080 |
-| `gateway` (API) | `gateway/` | Node.js + TypeScript, Hapi.js, hapi-swagger (`/documentation`), @grpc/grpc-js, ioredis, joi, pino, uuid; jest | 3000 |
-| `secret-assistant` (crypto) | `secret_assistant/` | Go 1.18, google.golang.org/grpc, crypto/aes + crypto/rsa | 50052 |
-| `redis` | — | redis:7-bullseye (no persistence config, no TTLs) | 6379 |
+| `web` (frontend) | `web/` | Vue 3 (`<script setup lang="ts">`), Vite, vue-router, element-plus, @vueuse/core, axios, PWA, nginx SPA | 8080 |
+| `gateway` (API) | `gateway/` | **Go 1.27**, chi, `log/slog`, go-redis v9, grpc-go, validator, samber/lo; testify + miniredis for tests | 3000 |
+| `secret-assistant` (crypto) | `secret_assistant/` | Go 1.18, grpc-go, `crypto/aes` + `crypto/rsa` | 50052 |
+| `redis` | — | redis:7-bullseye (no persistence config) | 6379 |
+
+Note the Go version skew: gateway is `go 1.27`, secret-assistant is `go 1.18`.
 
 ## Directory Layout
 
-- `proto/message.proto` — **source of truth** for the gRPC contract (`SecretAssistant.encrypt` / `.decrypt`). Generated code lives in `gateway/proto/` (JS, via `yarn build:proto`) and `secret_assistant/proto/` (Go, committed).
-- `gateway/src/` — `index.ts` (Hapi bootstrap, CORS, swagger), `routes/message.ts` (POST/GET `/message`), `handlers/messages.ts` (orchestration + Redis chain), `services/db.ts` (ioredis), `services/secretAssistant.ts` (gRPC client, `SECRET_ASSISTANT_URL`).
-- `secret_assistant/` — `cmd/main.go` (gRPC server, flag `-port`, default 50052), `internal/encrypt/encrypt.go` (hybrid RSA+AES: `generateAESKey`, `encryptAESKey`), `internal/decrypt/decrypt.go`, `pkg/messages/message.go` (payload types).
-- `web/src/` — `main.ts` (router: `/`, `/secret/:id`, catch-all redirect), `views/MainView.vue` (input → URL), `views/SecretView.vue` (fetch + show secret), `components/` (SecretInput, SecretUrl, Header, Footer).
+- `proto/message.proto` — **source of truth** for the gRPC contract (`SecretAssistant.encrypt` / `.decrypt`). The `bytes body` fields carry a JSON-marshalled `EncryptedMessage`. Generated code is committed in **two places** with **two different codegen flows** (see Commands): `gateway/internal/messagepb/` and `secret_assistant/proto/`.
+- `gateway/` — `cmd/gateway/main.go` (composition root), `internal/{config,server,handler,service,store,cryptoclient,messagepb,integration,logger}`. See `gateway/AGENTS.md` for module responsibilities.
+- `secret_assistant/` — `cmd/main.go` (gRPC server, flag `-port`, default 50052), `internal/encrypt/`, `internal/decrypt/`, `pkg/messages/` (the `EncryptedMessage` struct — JSON keys are the cross-service contract), `proto/`.
+- `web/src/` — `main.ts` (router: `/`, `/secret/:id`, catch-all redirect), `views/MainView.vue`, `views/SecretView.vue`, `components/` (SecretInput, SecretUrl, Header, Footer, icons).
 
 ## Common Commands
 
 ```bash
-# Full stack (dev compose builds local images)
-docker compose up --build            # web:8080, gateway:3000, secret-assistant:50052, redis:6379
+# Full stack
+docker compose up --build
 
-# Production (prebuilt images: reshetovitsme/secret-{frontend,gateway,assistant})
-docker compose -f docker-compose.prod.yml up
+# Gateway (Go) — use Makefile, not yarn
+cd gateway && make build      # → ./bin/gateway
+cd gateway && make run        # needs REDIS_HOST + SECRET_ASSISTANT_URL (see Env)
+cd gateway && make test       # go test ./... -race -count=1 -cover
+cd gateway && make lint       # staticcheck ./...
+cd gateway && make proto      # regenerate internal/messagepb from ../proto/message.proto
+cd gateway && make vet tidy
 
-# Gateway (yarn)
-cd gateway && yarn install && yarn start        # dev (nodemon; expects REDIS_HOST + SECRET_ASSISTANT_URL)
-cd gateway && yarn build                        # tsc → dist/
-cd gateway && yarn build:proto                  # regenerate JS protos from ../proto/message.proto
-cd gateway && yarn lint && yarn test            # eslint / jest
+# secret-assistant (Go)
+cd secret_assistant && go build ./... && go run ./cmd -port 50052
+# regenerate its protos (see secret_assistant/README.md for the protoc invocation)
 
 # Frontend (yarn)
 cd web && yarn install && yarn dev              # vite dev server
 cd web && yarn build && yarn type-check         # vue-tsc --noEmit + vite build
 cd web && yarn lint
-
-# Go service
-cd secret_assistant && go build ./... && go run ./cmd -port 50052
 ```
 
 ## Environment Variables
 
-- **gateway:** `HOST` (0.0.0.0), `PORT` (3000), `REDIS_HOST` (redis), `REDIS_PORT` (6379), `REDIS_USERNAME`, `REDIS_PASSWORD`, `REDIS_DB` (0), `SECRET_ASSISTANT_URL` (secret-assistant:50052)
-- **secret-assistant:** `-port` flag (50052)
-- **web:** none (nginx proxies `/api/` → `gateway:3000`)
+- **gateway (Go, `internal/config/config.go`):** `HOST` (0.0.0.0), `PORT` (3000), `REDIS_HOST` (redis), `REDIS_PORT` (6379), `REDIS_USERNAME`, `REDIS_PASSWORD`, `REDIS_DB` (0), `SECRET_ASSISTANT_URL` (secret-assistant:50052), `MESSAGE_TTL` (24h), `LOG_PRETTY` (false). Names intentionally match the legacy Node gateway so existing deployments keep working.
+- **secret-assistant:** `-port` flag (50052).
+- **web:** none (nginx proxies `/api/` → `gateway:3000`, strips the `/api` prefix).
 
-## CI/CD
+## API Contract
 
-`.github/workflows/build.yml` runs on push to `main` (and `chore/build-ci`): web (install → build → lint), gateway (install → build → lint → test), secret-assistant (Go build/test). Node 18 in CI.
+- `POST /message` → `201 { "messageId" }`; body requires `message` (string, ≤100000 chars), unknown fields rejected.
+- `GET /message?messageId=` → `200 { "message" }`; `404` for missing/consumed; `400` if `messageId` omitted.
+- `GET /healthz` → `200 ok`.
+- Error body: `{ "error": { "code", "message" } }` (e.g. `NOT_FOUND`, `INTERNAL`, `VALIDATION_ERROR`). Client-facing errors are generic; details only in logs.
 
 ## Conventions
 
-- TypeScript: 4-space indent, Prettier + ESLint configured per package; **yarn** as package manager (yarn.lock committed; CI uses `--frozen-lockfile`).
-- Go: standard layout (`cmd/`, `internal/`, `pkg/`), `go 1.18`, grpc reflection enabled in dev.
-- API responses: both routes return HTTP `201` (including GET).
-- Swagger UI available at `/documentation` on the gateway.
+- **Gateway (Go):** stdlib-first (`log/slog`, `errors` + `%w`, `errors.Is`/`As`). Context propagated everywhere; HTTP handlers have a 10s timeout. `store` is a deep module — keep its interface at `Send`/`Consume` and never leak the `msg:<uuid>` key layout to callers. `internal/messagepb` is generated; never edit by hand. New deps need a reason (chi, go-redis, grpc, validator, lo, testify/miniredis are the approved set).
+- **secret-assistant (Go):** module path is still the old repo name `github.com/ReshetovItsMe/one-time-messaging-exchange-be`; the gateway uses `github.com/ReshetovItsMe/secret-message/gateway`. The JSON keys `privateKey`/`encryptedKey`/`data` are part of the cross-service contract — do not rename without a coordinated change on both sides.
+- **web (TS):** 4-space indent, Prettier + ESLint per package; **yarn** (yarn.lock committed; CI uses `--frozen-lockfile`).
 
-## Known Gaps & Notes (verify before relying on them)
+## Notes
 
-- **One-time deletion is NOT implemented.** README claims data is deleted after access, but there is no `DEL` and no TTL anywhere in `gateway/src` — Redis keys persist forever. Implement expiry/deletion if the one-time guarantee matters.
-- **No tests:** gateway `jest` runs with `--passWithNoTests`; Go service has no test files. CI "testing" steps are effectively no-ops.
-- **Validation is permissive:** `POST /message` Joi schema is an empty `Joi.object()` — any payload is accepted; handler reads `payload.message` unchecked.
-- **Module name drift:** `secret_assistant/go.mod` declares `github.com/ReshetovItsMe/one-time-messaging-exchange-be` (old repo name); the repo is now `secret-message`.
-- **Insecure gRPC:** `credentials.createInsecure()` — fine for the compose network, not for public exposure.
-- Generated proto code is committed in both `gateway/proto/` and `secret_assistant/proto/`; regenerate after editing `proto/message.proto`.
+- OpenSpec is initialized (`openspec/` + skills under `.opencode/skills/` and `.agents/skills/`), but `specs/` and `changes/` are empty — no specs written yet.
+- gRPC is insecure (`insecure.NewCredentials()`); fine for the compose network, not for public exposure.
+- CI runs on push to `main` and `chore/build-ci`; Node 18 is pinned for the `web` job, Go 1.27.x for the `gateway` job.
