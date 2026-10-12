@@ -36,12 +36,15 @@ Browser ──▶ web (Vue 3 + nginx, :8080)
 
 ## ⚠️ Migration state (read before touching Docker/CI)
 
-The gateway was **rewritten from Node.js/Hapi to Go** (chi, `log/slog`, `go-redis`) in recent commits, but the surrounding infra was **not** updated. This is the #1 thing to trip over:
+The gateway was **rewritten from Node.js/Hapi to Go** (chi, `log/slog`, `go-redis`) in recent commits. Docker/CI have been migrated to the Go build:
 
-- `docker-compose.yml` and `docker-compose.prod.yml` still build `./gateway` using `gateway/Dockerfile`, which is the **stale Node** file (`FROM node:18` + `yarn` + `node dist/index.js`). There is no `package.json`/`yarn.lock` in `gateway/` anymore, so **`docker compose up --build` will fail on the gateway**.
-- `.github/workflows/build.yml`'s `gateway` job still runs `yarn install/build/lint/test` in `./gateway` — **also stale/broken**. The `frontend` and `secret_assistant` jobs are still valid.
+- `gateway/Dockerfile` is a multi-stage Go build (`golang:1.27-alpine` → `alpine`); `docker compose up --build` now builds the gateway correctly.
+- `.github/workflows/build.yml`'s `gateway` job runs `go mod download` / `go build` / `go vet` / `go test -race` (Go 1.27.x), not yarn.
+
+Remaining stale bits to be aware of:
+
 - `gateway/README.md` still describes the Node gateway (yarn scripts, `build:proto`). Trust `gateway/AGENTS.md` + the Go source instead.
-- `gateway/dist/` and `gateway/node_modules/` are leftover Node artifacts (git-ignored). `gateway-bun/` is a stray dir containing only empty `dist/` and `node_modules/` — not part of the architecture; ignore it.
+- `gateway/dist/` and `gateway/node_modules/` are leftover Node artifacts (git-ignored); harmless to delete.
 
 **Authoritative gateway docs:** `gateway/AGENTS.md` (layout, deep-module rules, testing) and `gateway/Makefile`. Follow those for the Go service.
 
@@ -66,7 +69,7 @@ Note the Go version skew: gateway is `go 1.27`, secret-assistant is `go 1.18`.
 ## Common Commands
 
 ```bash
-# Full stack — NOTE: currently broken; gateway Dockerfile is stale (see Migration state)
+# Full stack
 docker compose up --build
 
 # Gateway (Go) — use Makefile, not yarn
@@ -110,4 +113,4 @@ cd web && yarn lint
 
 - OpenSpec is initialized (`openspec/` + skills under `.opencode/skills/` and `.agents/skills/`), but `specs/` and `changes/` are empty — no specs written yet.
 - gRPC is insecure (`insecure.NewCredentials()`); fine for the compose network, not for public exposure.
-- CI runs on push to `main` and `chore/build-ci`; Node 18 is pinned for the `web` and (stale) `gateway` jobs.
+- CI runs on push to `main` and `chore/build-ci`; Node 18 is pinned for the `web` job, Go 1.27.x for the `gateway` job.

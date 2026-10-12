@@ -44,6 +44,12 @@ func (s *Service) CreateMessage(ctx context.Context, plaintext string) (string, 
 // GetMessage reads and deletes the message with the given id, then decrypts
 // it. Returns ErrMessageNotFound if the message is missing or already
 // consumed.
+//
+// The payload is deleted (Consume) before decryption. If decryption fails
+// after that point the message is irrecoverable. This is an accepted tradeoff
+// of the one-time guarantee: delete-on-read must be atomic with the read
+// (GETDEL), so decryption necessarily happens after deletion. A transient
+// crypto-service outage during the read window therefore loses the message.
 func (s *Service) GetMessage(ctx context.Context, id string) (string, error) {
 	payload, err := s.store.Consume(ctx, id)
 	if errors.Is(err, store.ErrNotFound) {

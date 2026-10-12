@@ -59,10 +59,10 @@ func (c *grpcClient) Encrypt(ctx context.Context, plaintext string) (*EncryptedP
 		return nil, fmt.Errorf("rpc encrypt: %w", err)
 	}
 
-	// Unmarshal of the response body cannot fail in practice: the shape is
-	// fixed by the contract, so lo.Must keeps the happy path readable.
 	var payload EncryptedPayload
-	lo.Must0(json.Unmarshal(resp.GetBody(), &payload))
+	if err := json.Unmarshal(resp.GetBody(), &payload); err != nil {
+		return nil, fmt.Errorf("decode encrypted payload: %w", err)
+	}
 	return &payload, nil
 }
 

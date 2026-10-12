@@ -100,6 +100,28 @@ func TestCreateMessageRejectsInvalidJSON(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
 }
 
+func TestCreateMessageRejectsTrailingData(t *testing.T) {
+	h := newTestServer(t, &stubCrypto{}, &stubStore{})
+
+	rec := doRequest(t, h, http.MethodPost, "/message", `{"message":"x"}{"message":"y"}`)
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+}
+
+func TestCreateMessageRejectsTooLongMessage(t *testing.T) {
+	h := newTestServer(t, &stubCrypto{}, &stubStore{})
+
+	long := strings.Repeat("a", 100001)
+	rec := doRequest(t, h, http.MethodPost, "/message", `{"message":"`+long+`"}`)
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+
+	var body map[string]any
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &body))
+	errObj, ok := body["error"].(map[string]any)
+	require.True(t, ok)
+	assert.Equal(t, "VALIDATION_ERROR", errObj["code"])
+	assert.Contains(t, errObj["message"], "100000")
+}
+
 func TestGetMessageReturns200(t *testing.T) {
 	h := newTestServer(t,
 		&stubCrypto{text: "secret"},

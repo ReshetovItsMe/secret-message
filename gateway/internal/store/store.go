@@ -33,8 +33,6 @@ type Store interface {
 	// Consume atomically reads and deletes the message with the given id.
 	// Returns ErrNotFound if the message is missing or already consumed.
 	Consume(ctx context.Context, id string) (*cryptoclient.EncryptedPayload, error)
-	// Close releases the underlying connection.
-	Close() error
 }
 
 type redisStore struct {
@@ -85,8 +83,4 @@ func (s *redisStore) Consume(ctx context.Context, id string) (*cryptoclient.Encr
 
 	s.log.Debug("message consumed", "id", id)
 	return &payload, nil
-}
-
-func (s *redisStore) Close() error {
-	return s.client.Close()
 }

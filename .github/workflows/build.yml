@@ -28,21 +28,24 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-      - name: Install Node
-        uses: actions/setup-node@v3
+      - name: Install Go
+        uses: actions/setup-go@v3
         with:
-          node-version: 18
+          go-version: "1.27.x"
       - name: 📟 Downloading dependencies...
-        run: yarn install --frozen-lockfile
+        run: go mod download
+        working-directory: ./gateway
+      - name: Verifying...
+        run: go mod verify
         working-directory: ./gateway
       - name: Building...
-        run: yarn build
+        run: go build ./...
         working-directory: ./gateway
       - name: Linting...
-        run: yarn lint
+        run: go vet ./...
         working-directory: ./gateway
       - name: Testing...
-        run: yarn test
+        run: go test ./... -race
         working-directory: ./gateway
   secret_assistant:
     runs-on: ubuntu-latest

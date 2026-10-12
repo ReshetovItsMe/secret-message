@@ -28,6 +28,10 @@ picture.
 - Context is propagated everywhere; HTTP handlers have a 10s timeout via middleware.
 - New dependencies need a reason; prefer stdlib + the existing small set (chi, go-redis, grpc, validator, lo, testify/miniredis in tests).
 
+## Caveats
+
+- One-time semantics delete the payload before decryption (`GETDEL` then decrypt). If the crypto service is down during the read, the message is lost — accepted, do not "fix" by decrypting before delete (breaks atomicity).
+
 ## Commands
 
 ```bash
