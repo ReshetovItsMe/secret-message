@@ -31,12 +31,11 @@ const { copy } = useClipboard({ source: textToCopy });
 <template>
     <div class="url-block">
         <div class="url-block-link">
-            <el-text size="large" v-model="textToCopy">{{ fullUrl }}</el-text>
+            <el-text size="large">{{ fullUrl }}</el-text>
 
             <el-button
                 text
                 size="large"
-                type="''"
                 :icon="CopyDocument"
                 @click="copy()"
             />

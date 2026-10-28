@@ -1,37 +1,42 @@
-<script async setup lang="ts">
+<script setup lang="ts">
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
-import { computed, reactive } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const secretId = computed(() => route.params.id ?? null);
-const store = {
-    state: reactive<{ secret?: string }>({
-        secret: undefined,
-    }),
 
-    setSecret(newValue: string) {
-        this.state.secret = newValue;
-    },
-};
+const secret = ref<string | null>(null);
+const loading = ref(true);
 
-try {
-    const { data } = await axios.get<{ message: string }>('/message', {
-        params: { messageId: secretId.value },
-    });
-    store.setSecret(data.message);
-} catch (error) {
-    ElMessage.error(`No such secret id ${secretId.value}`);
-}
+onMounted(async () => {
+    try {
+        const { data } = await axios.get<{ message: string }>('/message', {
+            params: { messageId: secretId.value },
+        });
+        secret.value = data.message;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+            ElMessage.error(
+                'This secret has already been opened or does not exist.',
+            );
+        } else {
+            ElMessage.error(
+                'Something went wrong while loading the secret. Please try again.',
+            );
+        }
+    } finally {
+        loading.value = false;
+    }
+});
 </script>
 
 <template>
-    <Suspense>
-        <div class="secret-container">
-            <p>{{ store.state.secret }}</p>
-        </div>
-    </Suspense>
+    <div class="secret-container">
+        <p v-if="loading">Loading…</p>
+        <p v-else>{{ secret }}</p>
+    </div>
 </template>
 
 <style scoped>
