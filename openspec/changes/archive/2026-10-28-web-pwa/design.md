@@ -49,9 +49,15 @@ for this change and is out of scope here.
 
 ## HTTPS deployment
 
-Recorded as an open product/deployment decision: PWA features need HTTPS on real
-devices. Until TLS is available, the app degrades gracefully (no SW, no clipboard API) on
-plain HTTP and remains fully functional as a normal SPA.
+**Decision (recorded at `web-pwa` review): TLS/HTTPS are planned — the service WILL be
+served over HTTPS.** There is no deployment server yet, which is exactly why the `deploy`
+job was removed from CI (commit 62e60b8, `ci(workflows): remove broken deploy job`).
+Deployment and the installability-over-HTTPS verification are therefore deferred until a
+server exists. Until then the app degrades gracefully on plain HTTP: the service worker
+and clipboard are not registered/used outside a secure context
+(`registerServiceWorker.ts` guards on `window.isSecureContext`), and the app remains fully
+functional as a normal SPA. The app-shell precache and the `/api/*` NetworkOnly rule are
+already in place and will activate as soon as HTTPS is available.
 
 ## Out of scope
 
