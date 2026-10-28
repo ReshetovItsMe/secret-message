@@ -25,12 +25,15 @@ so that responsive layout is isolated from any component-kit migration. The drop
 per-component-import decision is evaluated in `web-pwa`, where bundle size matters most
 for a mobile offline app.
 
-## Decisions to be finalized at implementation decomposition
+## Finalized decisions (recorded at review)
 
-- Exact mobile/tablet breakpoint values and whether any element is reordered (e.g.
-  footer icons) on narrow screens.
-- Whether `web/index.html` gains `theme-color` / mobile meta (non-blocking; also relevant
-  to `web-pwa`).
+- Breakpoints: mobile `< 768px`, tablet `768–1099px`, desktop `≥ 1100px`. The desktop
+  seam (`min-width: 1100px`) is the existing `MainView.vue` editor-width split, unchanged;
+  the new mobile seam is `max-width: 767px`; tablet is the band between them.
+- Footer icons are **not** reordered on narrow screens: the footer is centered
+  (`justify-content: center`) below `768px` instead.
+- `web/index.html` gains **no** `theme-color` or mobile meta in this change — deferred to
+  `web-pwa`, which wires the manifest, icons and `theme-color`.
 
 ## Out of scope
 

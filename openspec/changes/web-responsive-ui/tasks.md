@@ -4,10 +4,10 @@ Role ownership: `frontend` = `web/**` except Dockerfile/nginx; `qa` = verificati
 
 ## 1. Responsive layout (frontend)
 
-- [ ] 1.1 Implement mobile/tablet/desktop breakpoints and responsive styles across
+- [x] 1.1 Implement mobile/tablet/desktop breakpoints and responsive styles across
   `web/src/**` (views, components, `index.css`).
-- [ ] 1.2 Ensure no horizontal scroll at 360px and that touch targets meet minimum size.
-- [ ] 1.3 Keep desktop layout structurally unchanged; `pnpm build && pnpm lint &&
+- [x] 1.2 Ensure no horizontal scroll at 360px and that touch targets meet minimum size.
+- [x] 1.3 Keep desktop layout structurally unchanged; `pnpm build && pnpm lint &&
   pnpm type-check` green.
 
 ## 2. Verify (qa)
@@ -18,4 +18,4 @@ Role ownership: `frontend` = `web/**` except Dockerfile/nginx; `qa` = verificati
 
 ## 3. Documentation (teamlead)
 
-- [ ] 3.1 Record the final breakpoint/decision choices in `design.md` at review time.
+- [x] 3.1 Record the final breakpoint/decision choices in `design.md` at review time.
