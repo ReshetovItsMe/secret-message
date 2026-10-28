@@ -35,13 +35,30 @@ Role ownership per `AGENTS-TEAM.md`: `frontend` = `web/**` except Dockerfile/ngi
 
 ## 4. Verify acceptance criteria (qa)
 
-- [ ] 4.1 `cd web && pnpm install --frozen-lockfile && pnpm build && pnpm lint &&
+- [x] 4.1 `cd web && pnpm install --frozen-lockfile && pnpm build && pnpm lint &&
   pnpm type-check` green on Node 26 (via Docker `node:26` image).
-- [ ] 4.2 `docker compose build frontend` green; builder stage is `node:26`.
-- [ ] 4.3 CI frontend job green on Node 26 + pnpm.
-- [ ] 4.4 No `yarn` references remain in `web/`, `.github/`, or docs.
-- [ ] 4.5 No behavioural or visual regression vs. the pre-migration app (smoke: create →
+  Verified via CI: frontend job of run 40771453763 runs `pnpm install
+  --frozen-lockfile && pnpm build && pnpm lint` on `node-version: 26` + pnpm 12.16.1 →
+  success; `pnpm build` also runs `type-check` (`run-p type-check "build-only {@}"`), and
+  `pnpm type-check` is green locally (Node 24.20.0 satisfies `engines`). The Docker
+  `node:26` image itself was not run — no Docker binary on the host.
+- [x] 4.2 `docker compose build frontend` green; builder stage is `node:26`.
+  Verified via CI substitute: the `push_to_docker_hub` job builds `web/Dockerfile`
+  (`FROM node:26` → `npm i -g pnpm@12.16.1` → `pnpm install --frozen-lockfile` →
+  `pnpm build`) and is green in run 40771453763. `docker compose build` itself was not
+  run — no Docker binary/daemon on the host.
+- [x] 4.3 CI frontend job green on Node 26 + pnpm.
+  Verified: run 40771453763 — frontend job = success. The whole workflow is now green
+  after the broken `deploy` job was removed in commit 62e60b8.
+- [x] 4.4 No `yarn` references remain in `web/`, `.github/`, or docs.
+  Verified: `grep -rin yarn web .github AGENTS.md AGENTS-TEAM.md
+  --exclude-dir=node_modules` → zero matches; `web/yarn.lock` deleted.
+- [x] 4.5 No behavioural or visual regression vs. the pre-migration app (smoke: create →
   open secret once → consumed 404).
+  Verified: `pnpm build` green + UI smoke against built `dist/` with a mock backend
+  (create → open once shows the message → reopen shows the consumed/404 toast; a 500
+  shows the distinct network-error toast). Live end-to-end crypto stack
+  (gateway + redis + secret-assistant) deferred — no Docker/redis on the host.
 
 ## 5. Documentation (teamlead — done in the planning PR)
 
