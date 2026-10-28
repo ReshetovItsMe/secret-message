@@ -34,20 +34,6 @@ Browser ──▶ web (Vue 3 + nginx, :8080)
 2. **GET /message?messageId=<uuid>** — gateway atomically `GETDEL msg:<uuid>` (read + delete in one round trip = the one-time guarantee), calls gRPC `Decrypt`, returns `200 { "message": "..." }`. A missing/consumed id returns `404`.
 3. Frontend shows the secret at `/secret/:id` (SPA route; axios `baseURL` is `/api`).
 
-## ⚠️ Migration state (read before touching Docker/CI)
-
-The gateway was **rewritten from Node.js/Hapi to Go** (chi, `log/slog`, `go-redis`) in recent commits. Docker/CI have been migrated to the Go build:
-
-- `gateway/Dockerfile` is a multi-stage Go build (`golang:1.27-alpine` → `alpine`); `docker compose up --build` now builds the gateway correctly.
-- `.github/workflows/build.yml`'s `gateway` job runs `go mod download` / `go build` / `go vet` / `go test -race` (Go 1.27.x), not yarn.
-
-Remaining stale bits to be aware of:
-
-- `gateway/README.md` still describes the Node gateway (yarn scripts, `build:proto`). Trust `gateway/AGENTS.md` + the Go source instead.
-- `gateway/dist/` and `gateway/node_modules/` are leftover Node artifacts (git-ignored); harmless to delete.
-
-**Authoritative gateway docs:** `gateway/AGENTS.md` (layout, deep-module rules, testing) and `gateway/Makefile`. Follow those for the Go service.
-
 ## Tech Stack
 
 | Component | Location | Stack | Port |
@@ -72,7 +58,7 @@ Note the Go version skew: gateway is `go 1.27`, secret-assistant is `go 1.18`.
 # Full stack
 docker compose up --build
 
-# Gateway (Go) — use Makefile, not yarn
+# Gateway (Go)
 cd gateway && make build      # → ./bin/gateway
 cd gateway && make run        # needs REDIS_HOST + SECRET_ASSISTANT_URL (see Env)
 cd gateway && make test       # go test ./... -race -count=1 -cover
@@ -92,7 +78,7 @@ cd web && yarn lint
 
 ## Environment Variables
 
-- **gateway (Go, `internal/config/config.go`):** `HOST` (0.0.0.0), `PORT` (3000), `REDIS_HOST` (redis), `REDIS_PORT` (6379), `REDIS_USERNAME`, `REDIS_PASSWORD`, `REDIS_DB` (0), `SECRET_ASSISTANT_URL` (secret-assistant:50052), `MESSAGE_TTL` (24h), `LOG_PRETTY` (false). Names intentionally match the legacy Node gateway so existing deployments keep working.
+- **gateway (Go, `internal/config/config.go`):** `HOST` (0.0.0.0), `PORT` (3000), `REDIS_HOST` (redis), `REDIS_PORT` (6379), `REDIS_USERNAME`, `REDIS_PASSWORD`, `REDIS_DB` (0), `SECRET_ASSISTANT_URL` (secret-assistant:50052), `MESSAGE_TTL` (24h), `LOG_PRETTY` (false).
 - **secret-assistant:** `-port` flag (50052).
 - **web:** none (nginx proxies `/api/` → `gateway:3000`, strips the `/api` prefix).
 
