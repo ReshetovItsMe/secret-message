@@ -2,6 +2,7 @@
     "name": "secret-message",
     "version": "1.0.0",
     "private": true,
+    "type": "module",
     "repository": "https://github.com/ReshetovItsMe/one-time-messaging-exchange-be/web",
     "author": "Vladislav Reshetov<reshetovitsme@gmail.com>",
     "engines": {
@@ -10,12 +11,12 @@
     "packageManager": "pnpm@12.16.1",
     "scripts": {
         "build": "run-p type-check \"build-only {@}\" --",
-        "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+        "lint": "eslint . --fix",
         "build-only": "vite build",
         "dev": "vite",
         "format": "prettier --write src/",
         "preview": "vite preview",
-        "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false"
+        "type-check": "vue-tsc --noEmit -p tsconfig.app.json"
     },
     "dependencies": {
         "@element-plus/icons-vue": "2.3.2",
@@ -34,6 +35,7 @@
         "@vue/tsconfig": "0.9.1",
         "eslint": "10.13.0",
         "eslint-plugin-vue": "10.12.0",
+        "jiti": "2.7.0",
         "npm-run-all2": "9.0.4",
         "prettier": "3.9.10",
         "typescript": "6.0.3",
