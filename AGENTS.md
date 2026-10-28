@@ -97,6 +97,6 @@ cd web && yarn lint
 
 ## Notes
 
-- OpenSpec is initialized (`openspec/` + skills under `.opencode/skills/` and `.agents/skills/`), but `specs/` and `changes/` are empty — no specs written yet.
+- **OpenSpec** drives spec-driven changes in this repo: install it at the agent level (an OpenSpec plugin/skill for whatever agent you use — https://github.com/Fission-AI/OpenSpec), so the repo itself carries no agent-specific skill or command copies. OpenSpec writes its artifacts into `openspec/` and they are part of the codebase — commit them alongside the code they describe.
 - gRPC is insecure (`insecure.NewCredentials()`); fine for the compose network, not for public exposure.
 - CI runs on push to `main` and `chore/build-ci`; Node 18 is pinned for the `web` job, Go 1.27.x for the `gateway` job.
