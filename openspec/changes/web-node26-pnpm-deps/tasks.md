@@ -27,9 +27,9 @@ Role ownership per `AGENTS-TEAM.md`: `frontend` = `web/**` except Dockerfile/ngi
 
 ## 3. Container and CI (devops)
 
-- [ ] 3.1 Update `web/Dockerfile`: `FROM node:26`, `RUN npm i -g pnpm@12.16.1`,
+- [x] 3.1 Update `web/Dockerfile`: `FROM node:26`, `RUN npm i -g pnpm@12.16.1`,
   `pnpm install --frozen-lockfile`, `pnpm build`.
-- [ ] 3.2 Update the `frontend` job in `.github/workflows/build.yml` to Node 26 + pnpm
+- [x] 3.2 Update the `frontend` job in `.github/workflows/build.yml` to Node 26 + pnpm
   (see design.md).
 - [ ] 3.3 `docker compose build frontend` succeeds from a clean clone.
 
