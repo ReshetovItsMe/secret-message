@@ -74,10 +74,10 @@ cd gateway && make vet tidy
 cd secret_assistant && go build ./... && go run ./cmd -port 50052
 # regenerate its protos (see secret_assistant/README.md for the protoc invocation)
 
-# Frontend (yarn)
-cd web && yarn install && yarn dev              # vite dev server
-cd web && yarn build && yarn type-check         # vue-tsc --noEmit + vite build
-cd web && yarn lint
+# Frontend (pnpm)
+cd web && pnpm install && pnpm dev              # vite dev server
+cd web && pnpm build && pnpm type-check         # vue-tsc --noEmit + vite build
+cd web && pnpm lint
 ```
 
 ## Environment Variables
@@ -97,10 +97,10 @@ cd web && yarn lint
 
 - **Gateway (Go):** stdlib-first (`log/slog`, `errors` + `%w`, `errors.Is`/`As`). Context propagated everywhere; HTTP handlers have a 10s timeout. `store` is a deep module — keep its interface at `Send`/`Consume` and never leak the `msg:<uuid>` key layout to callers. `internal/messagepb` is generated; never edit by hand. New deps need a reason (chi, go-redis, grpc, validator, lo, testify/miniredis are the approved set).
 - **secret-assistant (Go):** module path is still the old repo name `github.com/ReshetovItsMe/one-time-messaging-exchange-be`; the gateway uses `github.com/ReshetovItsMe/secret-message/gateway`. The JSON keys `privateKey`/`encryptedKey`/`data` are part of the cross-service contract — do not rename without a coordinated change on both sides.
-- **web (TS):** 4-space indent, Prettier + ESLint per package; **yarn** (yarn.lock committed; CI uses `--frozen-lockfile`).
+- **web (TS):** 4-space indent, Prettier + ESLint per package; **pnpm** (pnpm-lock.yaml committed; CI uses `--frozen-lockfile`).
 
 ## Notes
 
 - **OpenSpec** drives spec-driven changes in this repo: install it at the agent level (an OpenSpec plugin/skill for whatever agent you use — https://github.com/Fission-AI/OpenSpec), so the repo itself carries no agent-specific skill or command copies. OpenSpec writes its artifacts into `openspec/` and they are part of the codebase — commit them alongside the code they describe.
 - gRPC is insecure (`insecure.NewCredentials()`); fine for the compose network, not for public exposure.
-- CI runs on push to `main` and `chore/build-ci`; Node 18 is pinned for the `web` job, Go 1.27.x for the `gateway` job.
+- CI runs on push to `main` and `chore/build-ci`; Node 26 is pinned for the `web` job, Go 1.27.x for the `gateway` job.
