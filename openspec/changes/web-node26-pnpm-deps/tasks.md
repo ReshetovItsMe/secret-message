@@ -15,15 +15,15 @@ Role ownership per `AGENTS-TEAM.md`: `frontend` = `web/**` except Dockerfile/ngi
 
 ## 2. Migrate build config, run the TypeScript spike, fix code, go green (frontend)
 
-- [ ] 2.1 Replace `.eslintrc.cjs` with `eslint.config.ts` (flat config), drop
+- [x] 2.1 Replace `.eslintrc.cjs` with `eslint.config.ts` (flat config), drop
   `@rushstack/eslint-patch`, update the `lint` script (ESLint 10 has no `--ext`).
-- [ ] 2.2 Point `tsconfig.node.json` at `@tsconfig/node26`; re-check the `type-check`
+- [x] 2.2 Point `tsconfig.node.json` at `@tsconfig/node26`; re-check the `type-check`
   script for vue-tsc 3.3.13 (drop the 1.x `--composite false` workaround).
-- [ ] 2.3 Review `vite.config.ts` under Vite 8 / Rolldown; fix the `SecretUrl.vue` and
+- [x] 2.3 Review `vite.config.ts` under Vite 8 / Rolldown; fix the `SecretUrl.vue` and
   `SecretView.vue` issues and delete `web/src/registerServiceWorker.js` (see design.md).
-- [ ] 2.4 Run the TypeScript 7.0.2 spike; report the outcome (green → land 7.0.2, red →
+- [x] 2.4 Run the TypeScript 7.0.2 spike; report the outcome (green → land 7.0.2, red →
   stay 6.0.3 + failure mode) in the card result.
-- [ ] 2.5 `cd web && pnpm build && pnpm lint && pnpm type-check` green.
+- [x] 2.5 `cd web && pnpm build && pnpm lint && pnpm type-check` green.
 
 ## 3. Container and CI (devops)
 
@@ -31,7 +31,7 @@ Role ownership per `AGENTS-TEAM.md`: `frontend` = `web/**` except Dockerfile/ngi
   `pnpm install --frozen-lockfile`, `pnpm build`.
 - [x] 3.2 Update the `frontend` job in `.github/workflows/build.yml` to Node 26 + pnpm
   (see design.md).
-- [ ] 3.3 `docker compose build frontend` succeeds from a clean clone.
+- [x] 3.3 `docker compose build frontend` succeeds from a clean clone.
 
 ## 4. Verify acceptance criteria (qa)
 
@@ -47,7 +47,7 @@ Role ownership per `AGENTS-TEAM.md`: `frontend` = `web/**` except Dockerfile/ngi
 
 - [x] 5.1 Update `AGENTS.md` (Tech Stack, Common Commands, Notes).
 - [x] 5.2 Update `AGENTS-TEAM.md` section 8 frontend DoD (pnpm, Node 26).
-- [ ] 5.3 Record spike results in `design.md` once the frontend reports (see task 2.4).
+- [x] 5.3 Record spike results in `design.md` once the frontend reports (see task 2.4).
 
 > Note: tasks 5.1–5.2 are completed in the planning PR. Task 5.3 is completed by teamlead
 > at review time, after the frontend card reports the spike outcome.

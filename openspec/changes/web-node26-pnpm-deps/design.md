@@ -109,7 +109,10 @@ and run `pnpm type-check && pnpm build` against `vue-tsc@3.3.13`.
 - **Green** → land 7.0.2 in this change.
 - **Red** → stay on 6.0.3 and record the failure mode here.
 
-> Result: **PENDING** — filled by teamlead from the frontend card's report.
+> Result: **RED — stay on 6.0.3.** `vue-tsc@3.3.13` resolves `typescript/lib/tsc`, which
+> TypeScript 7.0.2 no longer exports (`ERR_PACKAGE_PATH_NOT_EXPORTED`); independently
+> `@typescript-eslint@8.72.1` declares a peer range `typescript >=4.8.4 <6.1.0` that
+> rejects 7.x. Landed on 6.0.3.
 
 ## Spike: Vite 8 (Rolldown) compatibility
 
@@ -117,7 +120,9 @@ and run `pnpm type-check && pnpm build` against `vue-tsc@3.3.13`.
 minimal config. Verify it loads under Vite 8 / Rolldown with `@vitejs/plugin-vue@6.0.10`
 and no further changes; record any plugin/alias incompatibility discovered.
 
-> Result: **PENDING** — filled by teamlead from the frontend card's report.
+> Result: **GREEN.** The minimal `vite.config.ts` (plugin-vue + `@` alias) loads and
+> builds cleanly under Vite 8 / Rolldown with `@vitejs/plugin-vue@6.0.10`; no plugin/alias
+> incompatibility found.
 
 ## Required code fixes (no behaviour change)
 
