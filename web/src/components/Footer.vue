@@ -48,4 +48,18 @@ import linkedin from '../assets/linkedin.png';
     height: 50%;
     margin: auto;
 }
+
+@media (max-width: 767px) {
+    .footer {
+        justify-content: center;
+    }
+}
+
+@media (pointer: coarse) {
+    .logo-wrapper {
+        min-height: 44px;
+        min-width: 44px;
+        justify-content: center;
+    }
+}
 </style>

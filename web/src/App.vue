@@ -24,6 +24,8 @@ import Header from './components/Header.vue';
 <style scoped>
 .common-layout {
     height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
 
     .el-main {
         display: flex;
@@ -34,6 +36,18 @@ import Header from './components/Header.vue';
 
     .el-container {
         padding: 15px;
+    }
+}
+
+@media (max-width: 767px) {
+    .common-layout {
+        .el-container {
+            padding: 10px;
+        }
+
+        .el-main {
+            padding: 10px;
+        }
     }
 }
 </style>

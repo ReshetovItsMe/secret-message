@@ -53,13 +53,29 @@ const { copy } = useClipboard({ source: textToCopy });
 .url-block {
     display: flex;
     flex-direction: column;
+    max-width: 100%;
 }
 .url-block-link {
     display: flex;
     flex-direction: row;
+    align-items: center;
+    overflow-wrap: anywhere;
+    min-width: 0;
 }
 .procceed-button {
     margin-top: 5pt;
     align-self: end;
+}
+
+@media (max-width: 767px) {
+    .url-block-link {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .procceed-button {
+        align-self: stretch;
+    }
 }
 </style>

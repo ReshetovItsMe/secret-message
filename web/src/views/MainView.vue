@@ -59,9 +59,15 @@ const makeNewSecret = () => {
     }
 }
 
-@media (max-width: 1099px) {
+@media (min-width: 768px) and (max-width: 1099px) {
     .secret-input {
         width: 90%;
+    }
+}
+
+@media (max-width: 767px) {
+    .secret-input {
+        width: 100%;
     }
 }
 </style>
