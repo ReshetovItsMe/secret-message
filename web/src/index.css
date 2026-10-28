@@ -1,15 +1,26 @@
 /* color palette from <https://github.com/vuejs/theme> */
-  *,
-  *::before,
-  *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     font-weight: normal;
-  }
-  
-  #app, body {
+}
+
+#app,
+body {
     font-family: var(--el-font-family);
     min-height: 100vh;
     line-height: 1.6;
-  }
-  
+}
+
+/*
+ * Touch targets: on coarse-pointer (touch) devices every Element Plus button
+ * grows to at least a ~44px tap area. Mouse/keyboard layouts are untouched.
+ */
+@media (pointer: coarse) {
+    .el-button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}

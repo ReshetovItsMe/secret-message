@@ -44,10 +44,19 @@ onMounted(async () => {
     background: var(--el-color-info-light-9);
     border-radius: 10px 10px 10px 10px;
     overflow-y: scroll;
+    overflow-wrap: anywhere;
     padding: 15px;
     text-align: center;
     font-size: var(--el-font-size-medium);
     max-height: 80%;
     max-width: 70%;
+}
+
+@media (max-width: 767px) {
+    .secret-container {
+        max-height: 85%;
+        max-width: 100%;
+        padding: 12px;
+    }
 }
 </style>

@@ -51,11 +51,20 @@ const postSecret = async () => {
     resize: none;
     height: 100%;
     width: 100%;
+    min-height: 40vh;
+    padding: 12px;
+    font-size: 16px;
     flex: 1;
 }
 
 .procceed-button {
     margin-top: 5pt;
     align-self: end;
+}
+
+@media (max-width: 767px) {
+    .procceed-button {
+        align-self: stretch;
+    }
 }
 </style>
