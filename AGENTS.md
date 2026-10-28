@@ -13,6 +13,10 @@ If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is 
 
 One-time secret-sharing service: plaintext is encrypted (hybrid RSA + AES), a unique link is shared, and the recipient decrypts it exactly once — the stored payload is atomically deleted on read.
 
+## Multi-agent teams
+
+This repository is also worked on by a multi-agent team (roles `teamlead`, `backend`, `frontend`, `qa`, `devops`). Any agent taking part in that team **MUST** read and follow **`AGENTS-TEAM.md`**: path ownership, contract ownership, OpenSpec spec flow, branch/PR rules, review and merge protocol. Agents that are not part of the team (one-off assistants, editors) can ignore it.
+
 ## Architecture
 
 Four components wired together with Docker Compose, communicating over gRPC and HTTP:
