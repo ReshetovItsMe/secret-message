@@ -12,8 +12,8 @@ Role ownership: `frontend` = `web/**` except Dockerfile/nginx; `qa` = verificati
 
 ## 2. Verify (qa)
 
-- [ ] 2.1 Verify the create → share → open-once → consumed-404 flow at each breakpoint.
-- [ ] 2.2 Verify no horizontal scrolling and readable content on mobile/tablet/desktop;
+- [x] 2.1 Verify the create → share → open-once → consumed-404 flow at each breakpoint.
+- [x] 2.2 Verify no horizontal scrolling and readable content on mobile/tablet/desktop;
   capture evidence (screenshots) at each breakpoint.
 
 ## 3. Documentation (teamlead)
