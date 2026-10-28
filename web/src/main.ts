@@ -7,6 +7,7 @@ import { createWebHistory, createRouter } from 'vue-router';
 import MainView from './views/MainView.vue';
 import SecretView from './views/SecretView.vue';
 import axios from 'axios';
+import { registerServiceWorker } from './registerServiceWorker';
 
 axios.defaults.baseURL = '/api';
 
@@ -26,3 +27,5 @@ const app = createApp(App);
 app.use(router);
 app.use(ElementPlus);
 app.mount('#app');
+
+registerServiceWorker();
