@@ -5,17 +5,17 @@ CI / deployment config; `qa` = verification; `teamlead` = decisions + docs.
 
 ## 1. Manifest and icons (frontend)
 
-- [ ] 1.1 Add `web/public/manifest.webmanifest` (name, theme-color, display standalone,
+- [x] 1.1 Add `web/public/manifest.webmanifest` (name, theme-color, display standalone,
   start_url) referencing the existing `web/public/img/icons/*`.
-- [ ] 1.2 Wire manifest, icons and `theme-color` into `web/index.html`.
+- [x] 1.2 Wire manifest, icons and `theme-color` into `web/index.html`.
 
 ## 2. Service worker (frontend)
 
-- [ ] 2.1 Add a service worker that precaches the app shell and routes `/api/*` as
+- [x] 2.1 Add a service worker that precaches the app shell and routes `/api/*` as
   NetworkOnly (never cached).
-- [ ] 2.2 Replace the deleted `registerServiceWorker.js` with a real Vite-aware
+- [x] 2.2 Replace the deleted `registerServiceWorker.js` with a real Vite-aware
   registration guarded by a secure-context check.
-- [ ] 2.3 `pnpm build && pnpm lint && pnpm type-check` green.
+- [x] 2.3 `pnpm build && pnpm lint && pnpm type-check` green.
 
 ## 3. HTTPS and deployment (devops)
 
@@ -31,5 +31,5 @@ CI / deployment config; `qa` = verification; `teamlead` = decisions + docs.
 
 ## 5. Documentation (teamlead)
 
-- [ ] 5.1 Record the Element Plus drop/per-component decision and the HTTPS decision in
+- [x] 5.1 Record the Element Plus drop/per-component decision and the HTTPS decision in
   `design.md` at review time.
