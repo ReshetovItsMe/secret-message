@@ -137,7 +137,7 @@ workers cannot see sibling cards.
 
 - `backend`: code + unit tests, `cd gateway && make test` and `make lint` green (or the
   equivalent for `secret_assistant`), generated code up to date, contract documented.
-- `frontend`: `yarn type-check`, `yarn build` and `yarn lint` green, states for loading /
+- `frontend`: `pnpm type-check`, `pnpm build` and `pnpm lint` green, states for loading /
   error / consumed-secret covered, no leftover logs or dead code.
 - `qa`: every acceptance criterion from the change marked verified with the command or
   scenario used; failures have a reproducing card assigned to the owning profile.
