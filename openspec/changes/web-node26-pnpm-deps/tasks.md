@@ -5,12 +5,12 @@ Role ownership per `AGENTS-TEAM.md`: `frontend` = `web/**` except Dockerfile/ngi
 
 ## 1. Migrate dependencies and lockfile (frontend)
 
-- [ ] 1.1 Rewrite `web/package.json` to the dependency matrix in `design.md`, add
+- [x] 1.1 Rewrite `web/package.json` to the dependency matrix in `design.md`, add
   `engines.node` (`^22.22.2 || ^24.15.0 || >=26`) and `packageManager` (`pnpm@12.16.1`),
   remove `@vue/cli-plugin-pwa` / `register-service-worker` / `@rushstack/eslint-patch`,
   add `@element-plus/icons-vue`.
-- [ ] 1.2 Generate `web/pnpm-lock.yaml` and delete `web/yarn.lock`.
-- [ ] 1.3 Verify `cd web && pnpm install --frozen-lockfile` resolves cleanly; confirm
+- [x] 1.2 Generate `web/pnpm-lock.yaml` and delete `web/yarn.lock`.
+- [x] 1.3 Verify `cd web && pnpm install --frozen-lockfile` resolves cleanly; confirm
   `pnpm --version` is `12.16.1`.
 
 ## 2. Migrate build config, run the TypeScript spike, fix code, go green (frontend)
