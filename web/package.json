@@ -40,6 +40,9 @@
         "prettier": "3.9.10",
         "typescript": "6.0.3",
         "vite": "8.3.5",
-        "vue-tsc": "3.3.13"
+        "vite-plugin-pwa": "2.0.0",
+        "vue-tsc": "3.3.13",
+        "workbox-build": "^7.4.1",
+        "workbox-window": "^7.4.1"
     }
 }
