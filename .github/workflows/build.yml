@@ -10,18 +10,24 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-      - name: Install Node
-        uses: actions/setup-node@v3
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          node-version: 18
+          version: 12.16.1
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
       - name: 📟 Downloading dependencies...
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
         working-directory: ./web
       - name: Building...
-        run: yarn build
+        run: pnpm build
         working-directory: ./web
       - name: Linting...
-        run: yarn lint
+        run: pnpm lint
         working-directory: ./web
   gateway:
     runs-on: ubuntu-latest
