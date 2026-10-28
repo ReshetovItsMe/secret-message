@@ -42,6 +42,11 @@ Final call at this change's implementation decomposition; the responsive change
 (`web-responsive-ui`) must not have already committed to a redesign that depends on the
 kit.
 
+**Decision (recorded at `web-pwa` review):** keep `element-plus` as-is (2.14.7). Dropping
+it or switching to per-component imports is deferred to a separate change
+(`web-bundle-optimization`); the ~353 KB CSS / 1.08 MB JS chunk is a known, accepted cost
+for this change and is out of scope here.
+
 ## HTTPS deployment
 
 Recorded as an open product/deployment decision: PWA features need HTTPS on real
