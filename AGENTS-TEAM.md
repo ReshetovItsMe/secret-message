@@ -70,11 +70,12 @@ Rules:
   `tasks.md` lines it closes.
 - Implementers read `openspec/changes/<change>/**`; they never edit it. Spec and code
   disagreeing is a `kanban_block`, not a local spec edit.
-- `teamlead` keeps `tasks.md` in sync: after a PR is merged it ticks the completed items
-  (`- [ ]` → `- [x]`). A tick is a claim that the work is merged and tested.
-- A change is closed with `openspec archive` (plus spec sync) in its own
-  `docs(specs): archive <change>` pull request, and only when every task is merged and the
-  test suite is green.
+- `teamlead` keeps `tasks.md` in sync: after a PR is merged into the feature branch it
+  ticks the completed items (`- [ ]` → `- [x]`). A tick is a claim that the work is merged
+  and tested.
+- A change is closed with `openspec archive` (plus spec sync) on the feature branch, and
+  only when every task is merged and the test suite is green. The whole feature branch is
+  then squash-merged into `main` as ONE Conventional Commit (see §6–7).
 
 ## 5. Work flow
 
@@ -82,23 +83,23 @@ Rules:
 product owner idea  ──┐
 pre-authored change ──┤
                       ▼
-teamlead: research → OpenSpec change → spec PR → epic card + child cards
+teamlead: research → OpenSpec change → feature/<change> branch → epic card + child cards
                                                     (assignee + parents)
                       │
                       ▼
-dispatcher spawns a worker per card, in an isolated git worktree
+dispatcher spawns a worker per card, in an isolated git worktree (off feature/<change>)
                       │
                       ▼
-worker: implement → test → commit → push → PR to main → request review
+worker: implement → test → commit → push → PR to feature/<change> → request review
                       │
                       ▼
-teamlead: review → request changes (loop) or squash-merge → tick tasks.md → complete card
+teamlead: review → request changes (loop) or squash-merge into feature/<change> → tick tasks.md → complete card
                       │
                       ▼
 qa card (when the epic has one): verify acceptance criteria → bug cards
                       │
                       ▼
-teamlead: verify change → archive change → report to product owner
+teamlead: verify change → archive change (on feature/<change>) → squash-merge feature/<change> → main (ONE commit) → report
 ```
 
 The kanban board is the **only** coordination channel. There are no agent-to-agent
@@ -108,13 +109,17 @@ workers cannot see sibling cards.
 
 ## 6. Branches, commits, pull requests
 
-- Base branch is always `main`. Work happens in a linked worktree on branch
-  `wt/<task-id>`, created by the dispatcher from the board's project clone.
+- Each OpenSpec change gets **one feature branch** `feature/<change>` created by `teamlead`
+  from `main` before any work starts. All work for that change happens on it.
+- `teamlead` checks out the feature branch in the board's project clone before decomposing,
+  so worker worktrees branch from it (not `main`). Work happens in a linked worktree on
+  branch `wt/<task-id>`.
 - One card = one branch = one pull request. Do not bundle unrelated cleanup.
 - Commit messages: Conventional Commits, English, imperative mood
   (`feat(gateway): reject oversize payloads`, not `fixed stuff`).
-- Pull requests target `main`, title is `<type>(<scope>): <summary>`, body states what
-  changed, why, how to verify it, and the kanban card id.
+- Pull requests target the change's feature branch `feature/<change>` (not `main`), title is
+  `<type>(<scope>): <summary>`, body states what changed, why, how to verify it, and the
+  kanban card id.
 - Never commit to `main` directly, never force-push a shared branch, never rewrite
   published history. Undo mistakes with a revert PR.
 - No secrets, tokens, credentials, `.env` values or debug logging in commits.
@@ -125,13 +130,18 @@ workers cannot see sibling cards.
 - The `teamlead` reviews the diff against the change spec and the card's acceptance
   criteria: scope, ownership boundaries, contract stability, tests, commit hygiene, no
   secrets.
-- Approved → `gh pr merge <N> --squash --subject "<type>(<scope>): <summary>" --delete-branch`,
-  then `tasks.md` is ticked and the kanban card is completed.
+- Approved → `gh pr merge <N> --squash --subject "<type>(<scope>): <summary>" --delete-branch`
+  (merges the PR into the change's feature branch), then `tasks.md` is ticked and the kanban
+  card is completed.
 - Rejected → `kanban_request_changes` plus a PR review comment listing concrete
   `file:line → what to change`. Vague feedback ("improve quality") is not a review.
 - Two review cycles without progress, or a product-level disagreement → the card is
   blocked and escalated to the product owner.
-- `main` must stay green: the merge is rejected if the relevant test suite fails.
+- The feature branch must stay green: a PR is rejected if the relevant test suite fails.
+- When the change is complete and archived, `teamlead` squash-merges the whole feature
+  branch into `main` as **one** Conventional Commit — open a PR `feature/<change>` → `main`,
+  then `gh pr merge --squash --subject "<type>(<scope>): <summary>" --delete-branch`. `main`
+  therefore receives exactly one commit per change.
 
 ## 8. Definition of done
 
