@@ -37,7 +37,7 @@ Role ownership: `backend` = `secret_assistant/**`, `gateway/**`, `proto/**`;
 
 ## 4. Tests (backend, extends crypto-tests)
 
-- [ ] 4.1 `secret_assistant`: update/add tests for the new signature — round-trip,
+- [x] 4.1 `secret_assistant`: update/add tests for the new signature — round-trip,
   wrong service key → error, tampered blob → error, empty and large inputs.
 - [ ] 4.2 `cd secret_assistant && go build ./... && go test ./... && go vet ./...`
   green.

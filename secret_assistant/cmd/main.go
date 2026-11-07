@@ -27,20 +27,20 @@ type server struct {
 	privateKey *rsa.PrivateKey
 }
 
-func (s *server) Encrypt(ctx context.Context, in *api.EncryptRequestMessage) (*api.EncryptedMessageResponse, error) {
-	blob, err := enc.Encrypt(&s.privateKey.PublicKey, in.GetBody())
+func (s *server) Encrypt(ctx context.Context, in *api.EncryptRequest) (*api.EncryptResponse, error) {
+	blob, err := enc.Encrypt(&s.privateKey.PublicKey, in.GetPlaintext())
 	if err != nil {
 		return nil, err
 	}
-	return &api.EncryptedMessageResponse{Body: blob}, nil
+	return &api.EncryptResponse{Blob: blob}, nil
 }
 
-func (s *server) Decrypt(ctx context.Context, in *api.DecryptRequestMessage) (*api.DecryptedMessageResponse, error) {
-	plaintext, err := dec.Decrypt(s.privateKey, in.GetBody())
+func (s *server) Decrypt(ctx context.Context, in *api.DecryptRequest) (*api.DecryptResponse, error) {
+	plaintext, err := dec.Decrypt(s.privateKey, in.GetBlob())
 	if err != nil {
 		return nil, err
 	}
-	return &api.DecryptedMessageResponse{Body: plaintext}, nil
+	return &api.DecryptResponse{Plaintext: plaintext}, nil
 }
 
 func main() {
