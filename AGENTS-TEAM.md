@@ -38,8 +38,8 @@ tests belong to `qa`.
 ## 3. Contract ownership
 
 - `proto/message.proto`, the HTTP endpoints (`POST /message`, `GET /message?messageId=`,
-  `/healthz`), the error envelope and the cross-service JSON keys (`privateKey`,
-  `encryptedKey`, `data`) are owned by `backend`.
+  `/healthz`), the error envelope and the opaque blob contract (the gateway sees only
+  `[]byte`, no key material) are owned by `backend`.
 - A contract change is only allowed when a `teamlead` decision is recorded in the change
   spec and in the card body. `frontend` and `qa` consume the contract and never change it.
 - Changing a contract requires updating both sides, the generated code and the

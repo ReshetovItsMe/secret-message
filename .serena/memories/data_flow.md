@@ -7,13 +7,13 @@ Lifecycle of a secret from creation to consumption across all four components.
 1. Browser -> `web` (nginx:8080) rewrites `/api/*` -> `/*` and proxies to `gateway:3000`.
 2. `handler.Create` (gateway): decode JSON (`DisallowUnknownFields`, 1 MiB body cap), validate `message` (required, <=100000).
 3. `service.CreateMessage`: `crypto.Encrypt(ctx, plaintext)` -> gRPC `Encrypt` to `secret-assistant`.
-4. `secret-assistant` `Encrypt` (hybrid): random 32-byte AES key -> AES-256-GCM encrypt plaintext (random nonce prepended to ciphertext) -> generate RSA-2048 keypair -> RSA-OAEP(SHA-256) wrap the AES key -> JSON `EncryptedMessage {privateKey, encryptedKey, data}` (all []byte) into proto `bytes body`.
-5. `cryptoclient` unmarshals into `EncryptedPayload` (same JSON keys).
-6. `store.Send`: uuid -> key `msg:<uuid>`, `SET` with TTL (default 24h). Returns id.
+4. `secret-assistant` `Encrypt` (envelope): random 32-byte AES key -> AES-256-GCM encrypt plaintext (random nonce prepended to ciphertext) -> RSA-OAEP(SHA-256) wrap the AES key with the service public key -> versioned opaque blob `[version][len(wrappedKey)][wrappedKey][nonce][ciphertext+tag]` (no key material, no JSON).
+5. `cryptoclient` returns the raw `[]byte` blob (opaque — the gateway never parses it).
+6. `store.Send(ctx, blob)`: uuid -> key `msg:<uuid>`, `SET` the blob with TTL (default 24h). Returns id.
 7. `handler.Create` -> `201 { messageId }`.
 8. Frontend (`SecretInput` -> `SecretUrl`) shows link `<origin>/secret/<id>`.
 
-NOTE: plaintext DOES transit the gateway (it is the Encrypt caller). Encryption is server-side (secret-assistant), NOT end-to-end. The RSA private key is stored alongside the ciphertext — protects at-rest/in-transit between services, not against a compromised gateway.
+NOTE: plaintext DOES transit the gateway (it is the Encrypt caller). Encryption is server-side (secret-assistant), NOT end-to-end. The service RSA private key stays in secret-assistant and is never stored in Redis; Redis holds only an opaque blob (wrapped key + ciphertext), so a Redis compromise alone reveals no plaintext. A secret-assistant (or its key) compromise, however, can reveal plaintext.
 
 ## Read path (GET /message?messageId=)
 
@@ -22,7 +22,7 @@ NOTE: plaintext DOES transit the gateway (it is the Encrypt caller). Encryption 
 3. `service.GetMessage`: `store.Consume(ctx, id)` FIRST.
    - `store.Consume` = Redis `GETDEL msg:<uuid>` (atomic read+delete = one-time guarantee). `redis.Nil` -> `store.ErrNotFound`.
 4. Map `store.ErrNotFound` -> `service.ErrMessageNotFound` -> handler -> `404`.
-5. On success, `crypto.Decrypt(ctx, payload)` -> gRPC `Decrypt` -> secret-assistant (RSA unwrap AES key -> AES-GCM decrypt).
+5. On success, `crypto.Decrypt(ctx, blob)` -> gRPC `Decrypt` -> secret-assistant (RSA-OAEP unwrap AES key with the service private key -> AES-GCM decrypt; bad version/length/auth -> error).
 6. `200 { message }`.
 
 WARNING delete-before-decrypt: if `Decrypt` fails after `GETDEL` (secret-assistant outage, corrupt payload), the message is irrecoverably lost. Accepted tradeoff of the one-time guarantee (delete must be atomic with read). See `mem:architecture`.

@@ -50,7 +50,7 @@ Frontend (Vue/TS): **no tests**. Quality gates = `pnpm type-check` (vue-tsc), `p
 ## Code style
 
 - Gateway (Go): stdlib-first (`log/slog`, `errors` + `%w`, `errors.Is/As`); context propagated; handlers have 10s timeout (chi middleware). Sentinel errors (`store.ErrNotFound`, `service.ErrMessageNotFound`). Layering: handler (thin) -> service (logic) -> cryptoclient/store (adapters). `internal/messagepb` generated — never edit. `store` is a deep module (Send/Consume only).
-- secret-assistant (Go): module path still `github.com/ReshetovItsMe/one-time-messaging-exchange-be`. JSON keys `privateKey`/`encryptedKey`/`data` are the cross-service contract.
+- secret-assistant (Go): module path still `github.com/ReshetovItsMe/one-time-messaging-exchange-be`. The cross-service contract is an opaque `[]byte` blob (no JSON keys, no key material).
 - web (TS): 4-space indent, prettier + eslint, pnpm (lockfile committed; CI uses `--frozen-lockfile`).
 
 ## CI

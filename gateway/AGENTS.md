@@ -15,7 +15,7 @@ picture.
 - `internal/handler` — thin HTTP layer: decode, validate, map errors to status codes. No business logic here.
 - `internal/service` — the deep module: `CreateMessage` (encrypt → store), `GetMessage` (consume → decrypt). Sentinel: `service.ErrMessageNotFound`.
 - `internal/store` — `MessageStore` interface + Redis implementation. **Deep module: keep the interface at `Send`/`Consume`.** Single key per message (`msg:<uuid>`), TTL, atomic `GETDEL` (one-time guarantee). Do not leak the key layout to callers.
-- `internal/cryptoclient` — gRPC adapter. `EncryptedPayload` is the shared shape; JSON keys (`privateKey`/`encryptedKey`/`data`) are part of the contract with secret-assistant — do not rename without a coordinated change on the Go crypto service.
+- `internal/cryptoclient` — gRPC adapter; the gateway forwards/stores opaque `[]byte` blobs and has no knowledge of their internal layout (keys or ciphertext structure).
 - `internal/messagepb` — generated protobuf. Never edit; regenerate with `make proto`.
 - `internal/integration` — end-to-end test over real TCP (httptest + miniredis + in-process fake gRPC service).
 
