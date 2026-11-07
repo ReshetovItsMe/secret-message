@@ -33,4 +33,16 @@ export default defineConfig({
             '@': fileURLToPath(new URL('./src', import.meta.url)),
         },
     },
+    server: {
+        proxy: {
+            // Mirror nginx's rewrite: strip the `/api` prefix and forward to
+            // the local gateway, so `pnpm dev` can reach the API without the
+            // nginx container. The gateway serves routes like `/message`.
+            '/api': {
+                target: 'http://localhost:3000',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api/, ''),
+            },
+        },
+    },
 });
