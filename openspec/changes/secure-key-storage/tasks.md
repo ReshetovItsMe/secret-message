@@ -6,14 +6,14 @@ Role ownership: `backend` = `secret_assistant/**`, `gateway/**`, `proto/**`;
 
 ## 1. Crypto service: envelope encryption (backend)
 
-- [ ] 1.1 Load a single service RSA-2048 private key from a PEM file selected by an env
+- [x] 1.1 Load a single service RSA-2048 private key from a PEM file selected by an env
   var (e.g. `RSA_PRIVATE_KEY_PATH`), deriving the public key at startup. Fail fast if
   absent or invalid.
-- [ ] 1.2 Rewrite `Encrypt` to wrap an ephemeral AES-256 key with the service public key
+- [x] 1.2 Rewrite `Encrypt` to wrap an ephemeral AES-256 key with the service public key
   and emit a versioned opaque blob (no `privateKey`, no JSON).
-- [ ] 1.3 Rewrite `Decrypt` to parse the blob, unwrap the AES key with the service
+- [x] 1.3 Rewrite `Decrypt` to parse the blob, unwrap the AES key with the service
   private key and AES-GCM-decrypt; reject bad version/length/auth with an error.
-- [ ] 1.4 Remove the `privateKey` field and JSON round-trip from
+- [x] 1.4 Remove the `privateKey` field and JSON round-trip from
   `secret_assistant/pkg/messages` and `cmd/main.go`.
 
 ## 2. Contract: proto + codegen (backend)
