@@ -18,10 +18,10 @@ Role ownership: `backend` = `secret_assistant/**`, `gateway/**`, `proto/**`;
 
 ## 2. Contract: proto + codegen (backend)
 
-- [ ] 2.1 Update `proto/message.proto` to opaque `bytes blob` fields with clear message
+- [x] 2.1 Update `proto/message.proto` to opaque `bytes blob` fields with clear message
   names (`EncryptRequest{plaintext}`, `EncryptResponse{blob}`,
   `DecryptRequest{blob}`, `DecryptResponse{plaintext}`).
-- [ ] 2.2 Regenerate both codegen outputs (`make proto` in gateway and the
+- [x] 2.2 Regenerate both codegen outputs (`make proto` in gateway and the
   `secret_assistant/README.md` command); verify both sets of `.pb.go` files.
 
 ## 3. Gateway: opaque plumbing (backend)
