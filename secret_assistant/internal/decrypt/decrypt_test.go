@@ -1,70 +1,113 @@
 package cryptography
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
 	"testing"
 
 	"github.com/ReshetovItsMe/one-time-messaging-exchange-be/internal/encrypt"
-	m "github.com/ReshetovItsMe/one-time-messaging-exchange-be/pkg/messages"
 )
 
-// validMessage returns a freshly encrypted message to corrupt in each test.
-func validMessage(t *testing.T) *m.EncryptedMessage {
+// newTestKey returns a fresh RSA-2048 keypair.
+func newTestKey(t *testing.T) *rsa.PrivateKey {
 	t.Helper()
 
-	msg, err := encrypt.Encrypt("some secret message that is long enough to tamper with")
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf("rsa.GenerateKey() error = %v", err)
+	}
+	return key
+}
+
+// encryptWith seals plaintext with key's public key and returns the blob.
+func encryptWith(t *testing.T, key *rsa.PrivateKey, plaintext string) []byte {
+	t.Helper()
+
+	blob, err := encrypt.Encrypt(&key.PublicKey, plaintext)
 	if err != nil {
 		t.Fatalf("Encrypt() error = %v", err)
 	}
-
-	return msg
+	return blob
 }
 
-func TestDecryptTamperedData(t *testing.T) {
-	msg := validMessage(t)
-
-	tampered := *msg
-	tampered.Data = append([]byte(nil), msg.Data...)
-	tampered.Data[len(tampered.Data)/2] ^= 0xff
-
-	if _, err := Decrypt(&tampered); err == nil {
-		t.Error("Decrypt() with tampered Data: expected error, got nil")
+func TestDecryptNilPrivateKey(t *testing.T) {
+	if _, err := Decrypt(nil, []byte{1, 0, 0, 0}); err == nil {
+		t.Error("Decrypt() with nil private key: expected error, got nil")
 	}
 }
 
-func TestDecryptTruncatedData(t *testing.T) {
-	msg := validMessage(t)
+func TestDecryptEmptyBlob(t *testing.T) {
+	key := newTestKey(t)
 
-	// Drop the trailing byte of the ciphertext (including the auth tag), but
-	// keep the nonce prefix intact so the GCM layer reports the truncation.
-	truncated := *msg
-	truncated.Data = msg.Data[:len(msg.Data)-1]
-
-	if _, err := Decrypt(&truncated); err == nil {
-		t.Error("Decrypt() with truncated Data: expected error, got nil")
+	if _, err := Decrypt(key, nil); err == nil {
+		t.Error("Decrypt() with nil blob: expected error, got nil")
+	}
+	if _, err := Decrypt(key, []byte{}); err == nil {
+		t.Error("Decrypt() with empty blob: expected error, got nil")
 	}
 }
 
-func TestDecryptTruncatedEncryptedKey(t *testing.T) {
-	msg := validMessage(t)
+func TestDecryptWrongServiceKey(t *testing.T) {
+	key := newTestKey(t)
+	wrongKey := newTestKey(t)
 
-	truncated := *msg
-	truncated.EncryptedKey = msg.EncryptedKey[:len(msg.EncryptedKey)-10]
+	blob := encryptWith(t, key, "a secret only the right service key can open")
 
-	if _, err := Decrypt(&truncated); err == nil {
-		t.Error("Decrypt() with truncated EncryptedKey: expected error, got nil")
+	if _, err := Decrypt(wrongKey, blob); err == nil {
+		t.Error("Decrypt() with wrong service key: expected error, got nil")
 	}
 }
 
-func TestDecryptGarbagePrivateKey(t *testing.T) {
-	msg := validMessage(t)
+func TestDecryptTamperedCiphertext(t *testing.T) {
+	key := newTestKey(t)
 
-	// A structurally valid JSON object that is not an RSA private key. A
-	// fully non-JSON body is a separate, known robustness gap in Decrypt and
-	// is out of scope for these tests (see crypto-tests change).
-	garbage := *msg
-	garbage.PrivateKey = []byte("{}")
+	blob := encryptWith(t, key, "some secret message that is long enough to tamper with")
 
-	if _, err := Decrypt(&garbage); err == nil {
-		t.Error("Decrypt() with garbage PrivateKey: expected error, got nil")
+	// Flip the last byte (part of the AES-GCM ciphertext + tag).
+	tampered := append([]byte(nil), blob...)
+	tampered[len(tampered)-1] ^= 0xff
+
+	if _, err := Decrypt(key, tampered); err == nil {
+		t.Error("Decrypt() with tampered ciphertext: expected error, got nil")
+	}
+}
+
+func TestDecryptTamperedWrappedKey(t *testing.T) {
+	key := newTestKey(t)
+
+	blob := encryptWith(t, key, "some secret message")
+
+	// Flip the first byte of the wrapped AES key (byte 1, right after the
+	// version byte).
+	tampered := append([]byte(nil), blob...)
+	tampered[1] ^= 0xff
+
+	if _, err := Decrypt(key, tampered); err == nil {
+		t.Error("Decrypt() with tampered wrapped key: expected error, got nil")
+	}
+}
+
+func TestDecryptUnknownVersion(t *testing.T) {
+	key := newTestKey(t)
+
+	blob := encryptWith(t, key, "some secret message")
+
+	bad := append([]byte(nil), blob...)
+	bad[0] = 0x7f
+
+	if _, err := Decrypt(key, bad); err == nil {
+		t.Error("Decrypt() with unknown blob version: expected error, got nil")
+	}
+}
+
+func TestDecryptTruncatedBlob(t *testing.T) {
+	key := newTestKey(t)
+
+	blob := encryptWith(t, key, "some secret message that is long enough to truncate")
+
+	for _, n := range []int{0, 1, 5, 200, len(blob) - 1} {
+		if _, err := Decrypt(key, blob[:n]); err == nil {
+			t.Errorf("Decrypt() with blob truncated to %d bytes: expected error, got nil", n)
+		}
 	}
 }
