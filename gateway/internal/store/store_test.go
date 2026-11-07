@@ -10,8 +10,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"github.com/ReshetovItsMe/secret-message/gateway/internal/cryptoclient"
 )
 
 func newTestStore(t *testing.T, ttl time.Duration) (Store, *miniredis.Miniredis) {
@@ -23,32 +21,28 @@ func newTestStore(t *testing.T, ttl time.Duration) (Store, *miniredis.Miniredis)
 	return New(client, ttl, log), mr
 }
 
-func testPayload() *cryptoclient.EncryptedPayload {
-	return &cryptoclient.EncryptedPayload{
-		PrivateKey:   []byte("private-key-bytes"),
-		EncryptedKey: []byte("encrypted-key-bytes"),
-		Data:         []byte("ciphertext"),
-	}
+func testBlob() []byte {
+	return []byte("opaque-blob-bytes")
 }
 
 func TestSendAndConsumeRoundTrip(t *testing.T) {
 	ctx := context.Background()
 	s, _ := newTestStore(t, time.Hour)
 
-	id, err := s.Send(ctx, testPayload())
+	id, err := s.Send(ctx, testBlob())
 	require.NoError(t, err)
 	require.NotEmpty(t, id)
 
 	got, err := s.Consume(ctx, id)
 	require.NoError(t, err)
-	assert.Equal(t, testPayload(), got)
+	assert.Equal(t, testBlob(), got)
 }
 
 func TestConsumeTwiceReturnsNotFound(t *testing.T) {
 	ctx := context.Background()
 	s, _ := newTestStore(t, time.Hour)
 
-	id, err := s.Send(ctx, testPayload())
+	id, err := s.Send(ctx, testBlob())
 	require.NoError(t, err)
 
 	_, err = s.Consume(ctx, id)
@@ -70,7 +64,7 @@ func TestTTLIsApplied(t *testing.T) {
 	ctx := context.Background()
 	s, mr := newTestStore(t, 42*time.Second)
 
-	id, err := s.Send(ctx, testPayload())
+	id, err := s.Send(ctx, testBlob())
 	require.NoError(t, err)
 
 	ttl := mr.TTL("msg:" + id)
@@ -81,7 +75,7 @@ func TestKeysAreNamespaced(t *testing.T) {
 	ctx := context.Background()
 	s, _ := newTestStore(t, time.Hour)
 
-	id, err := s.Send(ctx, testPayload())
+	id, err := s.Send(ctx, testBlob())
 	require.NoError(t, err)
 
 	keys := make([]string, 0)

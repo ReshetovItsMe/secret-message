@@ -8,7 +8,6 @@ package store
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -16,8 +15,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
-
-	"github.com/ReshetovItsMe/secret-message/gateway/internal/cryptoclient"
 )
 
 // ErrNotFound is returned by Consume when the message does not exist or has
@@ -28,11 +25,11 @@ const keyPrefix = "msg:"
 
 // Store is the storage interface for encrypted messages.
 type Store interface {
-	// Send stores payload and returns a fresh message id.
-	Send(ctx context.Context, payload *cryptoclient.EncryptedPayload) (string, error)
+	// Send stores an opaque blob and returns a fresh message id.
+	Send(ctx context.Context, blob []byte) (string, error)
 	// Consume atomically reads and deletes the message with the given id.
 	// Returns ErrNotFound if the message is missing or already consumed.
-	Consume(ctx context.Context, id string) (*cryptoclient.EncryptedPayload, error)
+	Consume(ctx context.Context, id string) ([]byte, error)
 }
 
 type redisStore struct {
@@ -46,14 +43,9 @@ func New(client *redis.Client, ttl time.Duration, log *slog.Logger) Store {
 	return &redisStore{client: client, ttl: ttl, log: log}
 }
 
-func (s *redisStore) Send(ctx context.Context, payload *cryptoclient.EncryptedPayload) (string, error) {
+func (s *redisStore) Send(ctx context.Context, blob []byte) (string, error) {
 	id := uuid.NewString()
 	key := keyPrefix + id
-
-	blob, err := json.Marshal(payload)
-	if err != nil {
-		return "", fmt.Errorf("marshal payload: %w", err)
-	}
 
 	if err := s.client.Set(ctx, key, blob, s.ttl).Err(); err != nil {
 		return "", fmt.Errorf("redis set: %w", err)
@@ -63,7 +55,7 @@ func (s *redisStore) Send(ctx context.Context, payload *cryptoclient.EncryptedPa
 	return id, nil
 }
 
-func (s *redisStore) Consume(ctx context.Context, id string) (*cryptoclient.EncryptedPayload, error) {
+func (s *redisStore) Consume(ctx context.Context, id string) ([]byte, error) {
 	key := keyPrefix + id
 
 	// GETDEL is atomic: read + delete in one round trip, so two concurrent
@@ -76,11 +68,6 @@ func (s *redisStore) Consume(ctx context.Context, id string) (*cryptoclient.Encr
 		return nil, fmt.Errorf("redis getdel: %w", err)
 	}
 
-	var payload cryptoclient.EncryptedPayload
-	if err := json.Unmarshal(blob, &payload); err != nil {
-		return nil, fmt.Errorf("unmarshal payload: %w", err)
-	}
-
 	s.log.Debug("message consumed", "id", id)
-	return &payload, nil
+	return blob, nil
 }

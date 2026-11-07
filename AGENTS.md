@@ -11,7 +11,7 @@ Check versions against `go.mod`, `web/package.json`, the lockfile, and CI; do no
 | Component | Versions and tooling | Responsibility |
 |---|---|---|
 | `gateway/` | Go **1.27.0**, chi **5.3.2**, go-redis **9.22.0**, grpc-go **1.83.2**, validator **10.30.3**, lo **1.53.0** | Start at `cmd/gateway/main.go`; find business orchestration in `internal/service/`, Redis in `internal/store/`, the gRPC adapter in `internal/cryptoclient/`, and HTTP in `internal/handler/` and `internal/server/`. |
-| `secret_assistant/` | Go **1.18**, grpc-go **1.48.0**, stdlib `crypto` | Start at `cmd/main.go`; find cryptography in `internal/encrypt/` and `internal/decrypt/`, and the payload model in `pkg/messages/`. |
+| `secret_assistant/` | Go **1.18**, grpc-go **1.48.0**, stdlib `crypto` | Start at `cmd/main.go`; find cryptography in `internal/encrypt/` and `internal/decrypt/`. |
 | `web/` | Vue **3.5.44**, TypeScript **6.0.3**, Vite **8.3.5**, vue-router **5.4.0**, Element Plus **2.14.7**, VueUse **15.0.0**, axios **1.21.0**, vite-plugin-pwa **2.0.0** | Start at `src/main.ts`; change UI in `src/views/` and `src/components/`, and PWA registration in `src/registerServiceWorker.ts`. |
 | Infrastructure | Docker Compose, nginx, `redis:7-bullseye`; Node **26** in CI, pnpm **12.16.1** | Find configuration in `docker-compose*.yml`, `**/Dockerfile`, `web/nginx.conf`, and `.github/workflows/build.yml`. |
 
@@ -59,14 +59,14 @@ Dev UI: Vite → /api → localhost:3000 (strip the /api prefix)
 
 - Preserve the write path: `handler.Create` → `service.CreateMessage` → gRPC `Encrypt` → `store.Send` → one Redis key `msg:<uuid>` with a TTL (default 24h) → `201 { "messageId": "<uuid>" }`.
 - Preserve the read path: `handler.Get` → `service.GetMessage` → `store.Consume` (`GETDEL`) → gRPC `Decrypt` → `200 { "message": "..." }`. Return `404` for a missing/expired/consumed id and `400` when `messageId` is omitted.
-- Describe encryption accurately: pass plaintext through the gateway to the crypto service; use AES-256-GCM and RSA-2048/OAEP(SHA-256). Account for the private RSA key being stored alongside the ciphertext. **Do not call this end-to-end encryption or protection against Redis compromise**; do not claim insecure gRPC provides transport encryption.
+- Describe encryption accurately: the gateway passes plaintext to the crypto service, which uses envelope encryption — a per-message AES-256-GCM data key wrapped by a single service-held RSA-2048/OAEP(SHA-256) key. `Encrypt` returns an opaque, versioned binary blob (no key material, no JSON), and the service private key never leaves the crypto service or reaches Redis, so a Redis compromise alone reveals no plaintext. **Do not call this end-to-end encryption** (the gateway and crypto service sit in the plaintext path), and do not claim insecure gRPC provides transport encryption.
 - Treat this as **at-most-once retrieval**, not guaranteed delivery: after `GETDEL`, decryption or response-delivery failure may irreversibly lose the secret. Change this model only after explicit architectural agreement.
 
 ### Module boundaries and anti-patterns
 
 - Keep HTTP handlers thin: decode/validate requests and shape responses; put orchestration in `service`, Redis in `store`, and protobuf/gRPC in `cryptoclient`. Wire dependencies in `cmd/gateway/main.go`.
 - Preserve the deep `Store` interface with `Send`/`Consume`; keep `msg:<uuid>` keys and Redis commands out of handlers/services/UI. Never replace `GETDEL` with separate `GET` + `DEL` operations or move decryption before deletion as a quick fix.
-- Treat `proto/message.proto` as the source of truth. Preserve JSON inside protobuf `bytes body` and the `privateKey`/`encryptedKey`/`data` keys in both models (`EncryptedMessage` and `EncryptedPayload`). Coordinate HTTP/gRPC/JSON contract changes; update both sides, both codegen outputs, and documentation in one change.
+- Treat `proto/message.proto` as the source of truth. The gRPC contract carries an opaque `bytes blob` — `EncryptRequest{plaintext}` → `EncryptResponse{blob}`, `DecryptRequest{blob}` → `DecryptResponse{plaintext}` — with no JSON inside the bytes and no key field. Coordinate HTTP/gRPC contract changes; update both sides, both codegen outputs (`gateway/internal/messagepb/` and `secret_assistant/proto/`), and documentation in one change.
 - Validate `message` as a required string of at most 100000 characters; reject unknown JSON fields and trailing data, and preserve the 1 MiB HTTP body limit. Do not weaken validation to make a test pass.
 - Preserve `GET /healthz` → `200 ok` and the `{ "error": { "code", "message" } }` envelope (`BAD_REQUEST`, `VALIDATION_ERROR`, `NOT_FOUND`, `INTERNAL`). Return generic internal-error messages rather than Redis/gRPC error strings; do not log plaintext, keys, payloads, or secret links.
 - Propagate `context.Context`, preserve the 10s HTTP timeout, wrap errors with `%w`, compare them with `errors.Is/As`, and use `log/slog`. Apply `lo.Must` only when failure is provably impossible; handle JSON/crypto errors and corrupted data explicitly.
@@ -75,7 +75,7 @@ Dev UI: Vite → /api → localhost:3000 (strip the /api prefix)
 
 ### Configuration
 
-Take defaults from `gateway/internal/config/config.go`: `HOST=0.0.0.0`, `PORT=3000`, `REDIS_HOST=redis`, `REDIS_PORT=6379`, `REDIS_DB=0`, `SECRET_ASSISTANT_URL=secret-assistant:50052`, `MESSAGE_TTL=24h`, `LOG_PRETTY=false`. Supply `REDIS_USERNAME`/`REDIS_PASSWORD` only through the environment; never persist real values. Use `-port` (50052) for the crypto service; do not rely on Redis persistence that Compose does not configure.
+Take defaults from `gateway/internal/config/config.go`: `HOST=0.0.0.0`, `PORT=3000`, `REDIS_HOST=redis`, `REDIS_PORT=6379`, `REDIS_DB=0`, `SECRET_ASSISTANT_URL=secret-assistant:50052`, `MESSAGE_TTL=24h`, `LOG_PRETTY=false`. Supply `REDIS_USERNAME`/`REDIS_PASSWORD` only through the environment; never persist real values. Use `-port` (50052) for the crypto service; supply its RSA private key via `RSA_PRIVATE_KEY_PATH` (a PEM file, never committed). Do not rely on Redis persistence that Compose does not configure.
 
 ## 4. Implementation & Tooling
 

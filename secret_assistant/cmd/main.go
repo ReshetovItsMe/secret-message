@@ -1,15 +1,16 @@
 package main
 
 import (
-	"encoding/json"
+	"crypto/rsa"
 	"flag"
 	"fmt"
 	"log"
 	"net"
+	"os"
 
 	dec "github.com/ReshetovItsMe/one-time-messaging-exchange-be/internal/decrypt"
 	enc "github.com/ReshetovItsMe/one-time-messaging-exchange-be/internal/encrypt"
-	m "github.com/ReshetovItsMe/one-time-messaging-exchange-be/pkg/messages"
+	"github.com/ReshetovItsMe/one-time-messaging-exchange-be/internal/keys"
 	api "github.com/ReshetovItsMe/one-time-messaging-exchange-be/proto"
 
 	"golang.org/x/net/context"
@@ -23,50 +24,42 @@ var (
 
 type server struct {
 	api.UnimplementedSecretAssistantServer
+	privateKey *rsa.PrivateKey
 }
 
-func (s *server) Encrypt(ctx context.Context, in *api.EncryptRequestMessage) (*api.EncryptedMessageResponse, error) {
-	text := in.GetBody()
-	log.Printf("Received some message to encrypt")
-	cipheredTextAndKey, err := enc.Encrypt(text)
+func (s *server) Encrypt(ctx context.Context, in *api.EncryptRequest) (*api.EncryptResponse, error) {
+	blob, err := enc.Encrypt(&s.privateKey.PublicKey, in.GetPlaintext())
 	if err != nil {
 		return nil, err
 	}
-
-	encodedMessage, err := json.Marshal(cipheredTextAndKey)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &api.EncryptedMessageResponse{Body: encodedMessage}, nil
+	return &api.EncryptResponse{Blob: blob}, nil
 }
 
-func (s *server) Decrypt(ctx context.Context, in *api.DecryptRequestMessage) (*api.DecryptedMessageResponse, error) {
-	encodedMessage := in.GetBody()
-	log.Printf("Received some message to decrypt")
-
-	decodedMessage := &m.EncryptedMessage{}
-
-	err := json.Unmarshal(encodedMessage, &decodedMessage)
+func (s *server) Decrypt(ctx context.Context, in *api.DecryptRequest) (*api.DecryptResponse, error) {
+	plaintext, err := dec.Decrypt(s.privateKey, in.GetBlob())
 	if err != nil {
 		return nil, err
 	}
-
-	unwrappedText, err := dec.Decrypt(decodedMessage)
-	if err != nil {
-		return nil, err
-	}
-	return &api.DecryptedMessageResponse{Body: unwrappedText}, nil
+	return &api.DecryptResponse{Plaintext: plaintext}, nil
 }
 
 func main() {
 	flag.Parse()
+
+	keyPath := os.Getenv("RSA_PRIVATE_KEY_PATH")
+	if keyPath == "" {
+		log.Fatalf("RSA_PRIVATE_KEY_PATH is not set: supply the path to the service RSA private key PEM file")
+	}
+	privateKey, err := keys.Load(keyPath)
+	if err != nil {
+		log.Fatalf("failed to load service private key: %v", err)
+	}
+
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	serverInstance := server{}
+	serverInstance := server{privateKey: privateKey}
 	grpcServer := grpc.NewServer()
 	api.RegisterSecretAssistantServer(grpcServer, &serverInstance)
 	reflection.Register(grpcServer)
