@@ -5,22 +5,22 @@ package main;
 option go_package = "main/message";
 
 service SecretAssistant {
-  rpc encrypt (EncryptRequestMessage) returns (EncryptedMessageResponse) {}
-  rpc decrypt (DecryptRequestMessage) returns (DecryptedMessageResponse) {}
+  rpc encrypt (EncryptRequest) returns (EncryptResponse) {}
+  rpc decrypt (DecryptRequest) returns (DecryptResponse) {}
 }
 
-message EncryptedMessageResponse {
-  bytes body = 1;
+message EncryptRequest {
+  string plaintext = 1;
 }
 
-message DecryptedMessageResponse {
-  string  body = 1;
+message EncryptResponse {
+  bytes blob = 1;
 }
 
-message EncryptRequestMessage {
-  string body = 1;
+message DecryptRequest {
+  bytes blob = 1;
 }
 
-message DecryptRequestMessage {
-  bytes body = 1;
+message DecryptResponse {
+  string plaintext = 1;
 }

@@ -27,8 +27,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SecretAssistantClient interface {
-	Encrypt(ctx context.Context, in *EncryptRequestMessage, opts ...grpc.CallOption) (*EncryptedMessageResponse, error)
-	Decrypt(ctx context.Context, in *DecryptRequestMessage, opts ...grpc.CallOption) (*DecryptedMessageResponse, error)
+	Encrypt(ctx context.Context, in *EncryptRequest, opts ...grpc.CallOption) (*EncryptResponse, error)
+	Decrypt(ctx context.Context, in *DecryptRequest, opts ...grpc.CallOption) (*DecryptResponse, error)
 }
 
 type secretAssistantClient struct {
@@ -39,9 +39,9 @@ func NewSecretAssistantClient(cc grpc.ClientConnInterface) SecretAssistantClient
 	return &secretAssistantClient{cc}
 }
 
-func (c *secretAssistantClient) Encrypt(ctx context.Context, in *EncryptRequestMessage, opts ...grpc.CallOption) (*EncryptedMessageResponse, error) {
+func (c *secretAssistantClient) Encrypt(ctx context.Context, in *EncryptRequest, opts ...grpc.CallOption) (*EncryptResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(EncryptedMessageResponse)
+	out := new(EncryptResponse)
 	err := c.cc.Invoke(ctx, SecretAssistant_Encrypt_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -49,9 +49,9 @@ func (c *secretAssistantClient) Encrypt(ctx context.Context, in *EncryptRequestM
 	return out, nil
 }
 
-func (c *secretAssistantClient) Decrypt(ctx context.Context, in *DecryptRequestMessage, opts ...grpc.CallOption) (*DecryptedMessageResponse, error) {
+func (c *secretAssistantClient) Decrypt(ctx context.Context, in *DecryptRequest, opts ...grpc.CallOption) (*DecryptResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DecryptedMessageResponse)
+	out := new(DecryptResponse)
 	err := c.cc.Invoke(ctx, SecretAssistant_Decrypt_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -63,8 +63,8 @@ func (c *secretAssistantClient) Decrypt(ctx context.Context, in *DecryptRequestM
 // All implementations must embed UnimplementedSecretAssistantServer
 // for forward compatibility.
 type SecretAssistantServer interface {
-	Encrypt(context.Context, *EncryptRequestMessage) (*EncryptedMessageResponse, error)
-	Decrypt(context.Context, *DecryptRequestMessage) (*DecryptedMessageResponse, error)
+	Encrypt(context.Context, *EncryptRequest) (*EncryptResponse, error)
+	Decrypt(context.Context, *DecryptRequest) (*DecryptResponse, error)
 	mustEmbedUnimplementedSecretAssistantServer()
 }
 
@@ -75,10 +75,10 @@ type SecretAssistantServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSecretAssistantServer struct{}
 
-func (UnimplementedSecretAssistantServer) Encrypt(context.Context, *EncryptRequestMessage) (*EncryptedMessageResponse, error) {
+func (UnimplementedSecretAssistantServer) Encrypt(context.Context, *EncryptRequest) (*EncryptResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Encrypt not implemented")
 }
-func (UnimplementedSecretAssistantServer) Decrypt(context.Context, *DecryptRequestMessage) (*DecryptedMessageResponse, error) {
+func (UnimplementedSecretAssistantServer) Decrypt(context.Context, *DecryptRequest) (*DecryptResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Decrypt not implemented")
 }
 func (UnimplementedSecretAssistantServer) mustEmbedUnimplementedSecretAssistantServer() {}
@@ -103,7 +103,7 @@ func RegisterSecretAssistantServer(s grpc.ServiceRegistrar, srv SecretAssistantS
 }
 
 func _SecretAssistant_Encrypt_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EncryptRequestMessage)
+	in := new(EncryptRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -115,13 +115,13 @@ func _SecretAssistant_Encrypt_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: SecretAssistant_Encrypt_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecretAssistantServer).Encrypt(ctx, req.(*EncryptRequestMessage))
+		return srv.(SecretAssistantServer).Encrypt(ctx, req.(*EncryptRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _SecretAssistant_Decrypt_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DecryptRequestMessage)
+	in := new(DecryptRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -133,7 +133,7 @@ func _SecretAssistant_Decrypt_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: SecretAssistant_Decrypt_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecretAssistantServer).Decrypt(ctx, req.(*DecryptRequestMessage))
+		return srv.(SecretAssistantServer).Decrypt(ctx, req.(*DecryptRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
