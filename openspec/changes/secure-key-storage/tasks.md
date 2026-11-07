@@ -44,10 +44,10 @@ Role ownership: `backend` = `secret_assistant/**`, `gateway/**`, `proto/**`;
 
 ## 5. Key provisioning (devops)
 
-- [ ] 5.1 Add the service-key mount to `docker-compose.yml` /
+- [x] 5.1 Add the service-key mount to `docker-compose.yml` /
   `docker-compose.prod.yml` and document how a developer supplies a synthetic key; do
   not commit any real key material.
-- [ ] 5.2 `docker compose config --quiet` valid.
+- [x] 5.2 `docker compose config --quiet` valid.
 
 ## 6. Documentation and contract (teamlead)
 
