@@ -21,27 +21,27 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type EncryptedMessageResponse struct {
+type EncryptRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Body          []byte                 `protobuf:"bytes,1,opt,name=body,proto3" json:"body,omitempty"`
+	Plaintext     string                 `protobuf:"bytes,1,opt,name=plaintext,proto3" json:"plaintext,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *EncryptedMessageResponse) Reset() {
-	*x = EncryptedMessageResponse{}
+func (x *EncryptRequest) Reset() {
+	*x = EncryptRequest{}
 	mi := &file_message_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *EncryptedMessageResponse) String() string {
+func (x *EncryptRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*EncryptedMessageResponse) ProtoMessage() {}
+func (*EncryptRequest) ProtoMessage() {}
 
-func (x *EncryptedMessageResponse) ProtoReflect() protoreflect.Message {
+func (x *EncryptRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_message_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -53,39 +53,39 @@ func (x *EncryptedMessageResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use EncryptedMessageResponse.ProtoReflect.Descriptor instead.
-func (*EncryptedMessageResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use EncryptRequest.ProtoReflect.Descriptor instead.
+func (*EncryptRequest) Descriptor() ([]byte, []int) {
 	return file_message_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *EncryptedMessageResponse) GetBody() []byte {
+func (x *EncryptRequest) GetPlaintext() string {
 	if x != nil {
-		return x.Body
+		return x.Plaintext
 	}
-	return nil
+	return ""
 }
 
-type DecryptedMessageResponse struct {
+type EncryptResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Body          string                 `protobuf:"bytes,1,opt,name=body,proto3" json:"body,omitempty"`
+	Blob          []byte                 `protobuf:"bytes,1,opt,name=blob,proto3" json:"blob,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DecryptedMessageResponse) Reset() {
-	*x = DecryptedMessageResponse{}
+func (x *EncryptResponse) Reset() {
+	*x = EncryptResponse{}
 	mi := &file_message_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DecryptedMessageResponse) String() string {
+func (x *EncryptResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DecryptedMessageResponse) ProtoMessage() {}
+func (*EncryptResponse) ProtoMessage() {}
 
-func (x *DecryptedMessageResponse) ProtoReflect() protoreflect.Message {
+func (x *EncryptResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_message_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -97,39 +97,39 @@ func (x *DecryptedMessageResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DecryptedMessageResponse.ProtoReflect.Descriptor instead.
-func (*DecryptedMessageResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use EncryptResponse.ProtoReflect.Descriptor instead.
+func (*EncryptResponse) Descriptor() ([]byte, []int) {
 	return file_message_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *DecryptedMessageResponse) GetBody() string {
+func (x *EncryptResponse) GetBlob() []byte {
 	if x != nil {
-		return x.Body
+		return x.Blob
 	}
-	return ""
+	return nil
 }
 
-type EncryptRequestMessage struct {
+type DecryptRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Body          string                 `protobuf:"bytes,1,opt,name=body,proto3" json:"body,omitempty"`
+	Blob          []byte                 `protobuf:"bytes,1,opt,name=blob,proto3" json:"blob,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *EncryptRequestMessage) Reset() {
-	*x = EncryptRequestMessage{}
+func (x *DecryptRequest) Reset() {
+	*x = DecryptRequest{}
 	mi := &file_message_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *EncryptRequestMessage) String() string {
+func (x *DecryptRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*EncryptRequestMessage) ProtoMessage() {}
+func (*DecryptRequest) ProtoMessage() {}
 
-func (x *EncryptRequestMessage) ProtoReflect() protoreflect.Message {
+func (x *DecryptRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_message_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -141,39 +141,39 @@ func (x *EncryptRequestMessage) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use EncryptRequestMessage.ProtoReflect.Descriptor instead.
-func (*EncryptRequestMessage) Descriptor() ([]byte, []int) {
+// Deprecated: Use DecryptRequest.ProtoReflect.Descriptor instead.
+func (*DecryptRequest) Descriptor() ([]byte, []int) {
 	return file_message_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *EncryptRequestMessage) GetBody() string {
+func (x *DecryptRequest) GetBlob() []byte {
 	if x != nil {
-		return x.Body
+		return x.Blob
 	}
-	return ""
+	return nil
 }
 
-type DecryptRequestMessage struct {
+type DecryptResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Body          []byte                 `protobuf:"bytes,1,opt,name=body,proto3" json:"body,omitempty"`
+	Plaintext     string                 `protobuf:"bytes,1,opt,name=plaintext,proto3" json:"plaintext,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DecryptRequestMessage) Reset() {
-	*x = DecryptRequestMessage{}
+func (x *DecryptResponse) Reset() {
+	*x = DecryptResponse{}
 	mi := &file_message_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DecryptRequestMessage) String() string {
+func (x *DecryptResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DecryptRequestMessage) ProtoMessage() {}
+func (*DecryptResponse) ProtoMessage() {}
 
-func (x *DecryptRequestMessage) ProtoReflect() protoreflect.Message {
+func (x *DecryptResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_message_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -185,16 +185,16 @@ func (x *DecryptRequestMessage) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DecryptRequestMessage.ProtoReflect.Descriptor instead.
-func (*DecryptRequestMessage) Descriptor() ([]byte, []int) {
+// Deprecated: Use DecryptResponse.ProtoReflect.Descriptor instead.
+func (*DecryptResponse) Descriptor() ([]byte, []int) {
 	return file_message_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *DecryptRequestMessage) GetBody() []byte {
+func (x *DecryptResponse) GetPlaintext() string {
 	if x != nil {
-		return x.Body
+		return x.Plaintext
 	}
-	return nil
+	return ""
 }
 
 var File_message_proto protoreflect.FileDescriptor
@@ -202,17 +202,17 @@ var File_message_proto protoreflect.FileDescriptor
 const file_message_proto_rawDesc = "" +
 	"\n" +
 	"\rmessage.proto\x12\x04main\".\n" +
-	"\x18EncryptedMessageResponse\x12\x12\n" +
-	"\x04body\x18\x01 \x01(\fR\x04body\".\n" +
-	"\x18DecryptedMessageResponse\x12\x12\n" +
-	"\x04body\x18\x01 \x01(\tR\x04body\"+\n" +
-	"\x15EncryptRequestMessage\x12\x12\n" +
-	"\x04body\x18\x01 \x01(\tR\x04body\"+\n" +
-	"\x15DecryptRequestMessage\x12\x12\n" +
-	"\x04body\x18\x01 \x01(\fR\x04body2\xa5\x01\n" +
-	"\x0fSecretAssistant\x12H\n" +
-	"\aencrypt\x12\x1b.main.EncryptRequestMessage\x1a\x1e.main.EncryptedMessageResponse\"\x00\x12H\n" +
-	"\adecrypt\x12\x1b.main.DecryptRequestMessage\x1a\x1e.main.DecryptedMessageResponse\"\x00B\x0eZ\fmain/messageb\x06proto3"
+	"\x0eEncryptRequest\x12\x1c\n" +
+	"\tplaintext\x18\x01 \x01(\tR\tplaintext\"%\n" +
+	"\x0fEncryptResponse\x12\x12\n" +
+	"\x04blob\x18\x01 \x01(\fR\x04blob\"$\n" +
+	"\x0eDecryptRequest\x12\x12\n" +
+	"\x04blob\x18\x01 \x01(\fR\x04blob\"/\n" +
+	"\x0fDecryptResponse\x12\x1c\n" +
+	"\tplaintext\x18\x01 \x01(\tR\tplaintext2\x85\x01\n" +
+	"\x0fSecretAssistant\x128\n" +
+	"\aencrypt\x12\x14.main.EncryptRequest\x1a\x15.main.EncryptResponse\"\x00\x128\n" +
+	"\adecrypt\x12\x14.main.DecryptRequest\x1a\x15.main.DecryptResponse\"\x00B\x0eZ\fmain/messageb\x06proto3"
 
 var (
 	file_message_proto_rawDescOnce sync.Once
@@ -228,16 +228,16 @@ func file_message_proto_rawDescGZIP() []byte {
 
 var file_message_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_message_proto_goTypes = []any{
-	(*EncryptedMessageResponse)(nil), // 0: main.EncryptedMessageResponse
-	(*DecryptedMessageResponse)(nil), // 1: main.DecryptedMessageResponse
-	(*EncryptRequestMessage)(nil),    // 2: main.EncryptRequestMessage
-	(*DecryptRequestMessage)(nil),    // 3: main.DecryptRequestMessage
+	(*EncryptRequest)(nil),  // 0: main.EncryptRequest
+	(*EncryptResponse)(nil), // 1: main.EncryptResponse
+	(*DecryptRequest)(nil),  // 2: main.DecryptRequest
+	(*DecryptResponse)(nil), // 3: main.DecryptResponse
 }
 var file_message_proto_depIdxs = []int32{
-	2, // 0: main.SecretAssistant.encrypt:input_type -> main.EncryptRequestMessage
-	3, // 1: main.SecretAssistant.decrypt:input_type -> main.DecryptRequestMessage
-	0, // 2: main.SecretAssistant.encrypt:output_type -> main.EncryptedMessageResponse
-	1, // 3: main.SecretAssistant.decrypt:output_type -> main.DecryptedMessageResponse
+	0, // 0: main.SecretAssistant.encrypt:input_type -> main.EncryptRequest
+	2, // 1: main.SecretAssistant.decrypt:input_type -> main.DecryptRequest
+	1, // 2: main.SecretAssistant.encrypt:output_type -> main.EncryptResponse
+	3, // 3: main.SecretAssistant.decrypt:output_type -> main.DecryptResponse
 	2, // [2:4] is the sub-list for method output_type
 	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
