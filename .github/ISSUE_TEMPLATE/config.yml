@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Contributing notes
+    url: https://github.com/ReshetovItsMe/secret-message#contributing
+    about: Please read the contributing notes before opening an issue.
