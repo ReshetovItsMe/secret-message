@@ -29,6 +29,10 @@ services:
     image: reshetovitsme/secret-assistant:latest
     expose:
       - "50052"
+    environment:
+      RSA_PRIVATE_KEY_PATH: /run/secrets/secret_assistant_private_key
+    secrets:
+      - secret_assistant_private_key
     networks:
       - backend-network
   redis:
@@ -38,6 +42,16 @@ services:
       - "6379"
     networks:
       - backend-network
+
+# Service private key (RSA-2048) for secret-assistant. Provision the key on the
+# host before deploying and keep the real file out of version control:
+#   openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 \
+#     -out secrets/secret-assistant-private-key.pem
+# The file is mounted read-only into the container as a Docker secret;
+# secret-assistant reads its path from RSA_PRIVATE_KEY_PATH.
+secrets:
+  secret_assistant_private_key:
+    file: ./secrets/secret-assistant-private-key.pem
 
 networks:
   frontend-network:
