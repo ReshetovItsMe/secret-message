@@ -1,3 +1,7 @@
+// Package encrypt seals plaintext using envelope encryption: the plaintext is
+// encrypted with an ephemeral AES-256-GCM key, which is then wrapped with the
+// service RSA public key (OAEP/SHA-256). The result is an opaque, versioned
+// binary blob that carries no private key material and no JSON.
 package encrypt
 
 import (
@@ -6,78 +10,60 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
-	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 
-	m "github.com/ReshetovItsMe/one-time-messaging-exchange-be/pkg/messages"
+	"github.com/ReshetovItsMe/one-time-messaging-exchange-be/internal/cryptoblob"
 )
 
-// Generates AES key with random length (16, 24 or 32 bytes)
-func generateAESKey(size int) ([]byte, error) {
-	key := make([]byte, size)
-	_, err := rand.Read(key)
-	if err != nil {
-		return nil, err
-	}
-	return key, nil
-}
+const (
+	// aesKeySize is the size in bytes of the ephemeral AES-256 key.
+	aesKeySize = 32
+)
 
-// Encrypt Text using AES
-func encryptText(text string, aesKey []byte) ([]byte, error) {
-	block, aesErr := aes.NewCipher([]byte(aesKey))
-	if aesErr != nil {
-		return nil, aesErr
+// Encrypt seals plaintext and returns an opaque, versioned binary blob:
+//
+//	[version 1B][wrapped AES key 256B][nonce 12B][ciphertext + tag ...]
+//
+// The AES key is wrapped with the service public key via RSA-OAEP(SHA-256);
+// only the matching service private key can unwrap it. No private key material
+// is ever produced.
+func Encrypt(publicKey *rsa.PublicKey, plaintext string) ([]byte, error) {
+	if publicKey == nil {
+		return nil, errors.New("encrypt: public key is nil")
 	}
-	gcm, cipherErr := cipher.NewGCM(block)
-	if cipherErr != nil {
-		return nil, cipherErr
+
+	aesKey := make([]byte, aesKeySize)
+	if _, err := io.ReadFull(rand.Reader, aesKey); err != nil {
+		return nil, fmt.Errorf("generate AES key: %w", err)
+	}
+
+	block, err := aes.NewCipher(aesKey)
+	if err != nil {
+		return nil, fmt.Errorf("new AES cipher: %w", err)
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, fmt.Errorf("new GCM: %w", err)
 	}
 
 	nonce := make([]byte, gcm.NonceSize())
-
-	// populates our nonce with a cryptographically secure
-	// random sequence
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("generate nonce: %w", err)
 	}
-	ciphertext := gcm.Seal(nonce, nonce, []byte(text), nil)
+	ciphertext := gcm.Seal(nil, nonce, []byte(plaintext), nil)
 
-	return ciphertext, nil
-}
-
-// AES key encryption using RSA
-func encryptAESKey(aesKey []byte) ([]byte, []byte, error) {
-	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	wrappedKey, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey, aesKey, nil)
 	if err != nil {
-		return nil, nil, err
-	}
-	publicKey := &privateKey.PublicKey
-	encryptedAESKey, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey, aesKey, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-	privateKeyBytes, _ := json.Marshal(privateKey)
-
-	return encryptedAESKey, privateKeyBytes, err
-}
-
-func Encrypt(text string) (*m.EncryptedMessage, error) {
-	aesKey, err := generateAESKey(32)
-	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("wrap AES key: %w", err)
 	}
 
-	encryptedData, err := encryptText(text, aesKey)
-	if err != nil {
-		return nil, err
-	}
+	blob := make([]byte, 0, 1+len(wrappedKey)+len(nonce)+len(ciphertext))
+	blob = append(blob, cryptoblob.Version)
+	blob = append(blob, wrappedKey...)
+	blob = append(blob, nonce...)
+	blob = append(blob, ciphertext...)
 
-	encryptedAESKey, privateKey, err := encryptAESKey(aesKey)
-	if err != nil {
-		return nil, err
-	}
-
-	output := &m.EncryptedMessage{PrivateKey: privateKey, EncryptedKey: encryptedAESKey, Data: encryptedData}
-
-	return output, nil
+	return blob, nil
 }
