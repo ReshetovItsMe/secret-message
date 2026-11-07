@@ -21,35 +21,35 @@ import (
 )
 
 type stubCrypto struct {
-	payload *cryptoclient.EncryptedPayload
-	text    string
+	blob []byte
+	text string
 }
 
-func (s *stubCrypto) Encrypt(_ context.Context, _ string) (*cryptoclient.EncryptedPayload, error) {
-	return s.payload, nil
+func (s *stubCrypto) Encrypt(_ context.Context, _ string) ([]byte, error) {
+	return s.blob, nil
 }
 
-func (s *stubCrypto) Decrypt(_ context.Context, _ *cryptoclient.EncryptedPayload) (string, error) {
+func (s *stubCrypto) Decrypt(_ context.Context, _ []byte) (string, error) {
 	return s.text, nil
 }
 
 func (s *stubCrypto) Close() error { return nil }
 
 type stubStore struct {
-	payload *cryptoclient.EncryptedPayload
-	id      string
-	err     error
+	blob []byte
+	id   string
+	err  error
 }
 
-func (s *stubStore) Send(_ context.Context, _ *cryptoclient.EncryptedPayload) (string, error) {
+func (s *stubStore) Send(_ context.Context, _ []byte) (string, error) {
 	return s.id, s.err
 }
 
-func (s *stubStore) Consume(_ context.Context, _ string) (*cryptoclient.EncryptedPayload, error) {
+func (s *stubStore) Consume(_ context.Context, _ string) ([]byte, error) {
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.payload, nil
+	return s.blob, nil
 }
 
 func (s *stubStore) Close() error { return nil }
@@ -72,7 +72,7 @@ func doRequest(t *testing.T, h http.Handler, method, path, body string) *httptes
 
 func TestCreateMessageReturns201(t *testing.T) {
 	h := newTestServer(t,
-		&stubCrypto{payload: &cryptoclient.EncryptedPayload{Data: []byte("c")}},
+		&stubCrypto{blob: []byte("c")},
 		&stubStore{id: "abc-123"},
 	)
 
@@ -125,7 +125,7 @@ func TestCreateMessageRejectsTooLongMessage(t *testing.T) {
 func TestGetMessageReturns200(t *testing.T) {
 	h := newTestServer(t,
 		&stubCrypto{text: "secret"},
-		&stubStore{payload: &cryptoclient.EncryptedPayload{Data: []byte("c")}},
+		&stubStore{blob: []byte("c")},
 	)
 
 	rec := doRequest(t, h, http.MethodGet, "/message?messageId=abc", "")
