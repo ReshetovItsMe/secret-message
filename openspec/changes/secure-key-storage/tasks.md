@@ -26,14 +26,14 @@ Role ownership: `backend` = `secret_assistant/**`, `gateway/**`, `proto/**`;
 
 ## 3. Gateway: opaque plumbing (backend)
 
-- [ ] 3.1 Change `cryptoclient.Client` to accept/return `[]byte` blobs and drop the
+- [x] 3.1 Change `cryptoclient.Client` to accept/return `[]byte` blobs and drop the
   `EncryptedPayload` struct and its JSON (un)marshal.
-- [ ] 3.2 Change `store.Store` to `Send(ctx, blob []byte)` / `Consume(ctx, id) ([]byte,
+- [x] 3.2 Change `store.Store` to `Send(ctx, blob []byte)` / `Consume(ctx, id) ([]byte,
   error)` and store the blob directly as the Redis value (no JSON wrapper).
-- [ ] 3.3 Update `service`, `cmd/gateway/main.go`, and the integration fake to the new
+- [x] 3.3 Update `service`, `cmd/gateway/main.go`, and the integration fake to the new
   opaque signatures; keep the HTTP surface (`POST/GET /message`, error envelope)
   unchanged.
-- [ ] 3.4 `cd gateway && make build && make test && make lint && make vet` green.
+- [x] 3.4 `cd gateway && make build && make test && make lint && make vet` green.
 
 ## 4. Tests (backend, extends crypto-tests)
 
