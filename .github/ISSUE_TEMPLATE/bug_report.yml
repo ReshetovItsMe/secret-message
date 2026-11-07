@@ -1,0 +1,62 @@
+name: Bug report
+description: Report a bug or unexpected behaviour.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. The more detail you
+        provide, the faster we can reproduce and fix it.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Which version or commit of the service are you using?
+      placeholder: e.g. main @ 2425069, or a release tag
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, browser (for the web UI), deployment method, and Go/Node versions.
+      placeholder: |
+        - OS:
+        - Browser:
+        - Deployment: Docker Compose / manual
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: The exact steps that trigger the bug.
+      placeholder: |
+        1. Go to ...
+        2. Click on ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: What actually happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and screenshots
+      description: Paste any relevant logs (sanitized — no secrets or secret links) or attach screenshots.
+      render: shell
+    validations:
+      required: false
