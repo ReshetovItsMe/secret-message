@@ -39,7 +39,7 @@ Role ownership: `backend` = `secret_assistant/**`, `gateway/**`, `proto/**`;
 
 - [x] 4.1 `secret_assistant`: update/add tests for the new signature — round-trip,
   wrong service key → error, tampered blob → error, empty and large inputs.
-- [ ] 4.2 `cd secret_assistant && go build ./... && go test ./... && go vet ./...`
+- [x] 4.2 `cd secret_assistant && go build ./... && go test ./... && go vet ./...`
   green.
 
 ## 5. Key provisioning (devops)
@@ -51,7 +51,7 @@ Role ownership: `backend` = `secret_assistant/**`, `gateway/**`, `proto/**`;
 
 ## 6. Documentation and contract (teamlead)
 
-- [ ] 6.1 Update `AGENTS.md` API Contract + crypto description (envelope encryption,
+- [x] 6.1 Update `AGENTS.md` API Contract + crypto description (envelope encryption,
   opaque blob, remove the "private key stored alongside ciphertext" note).
-- [ ] 6.2 Update `README.md` to an honest confidentiality statement.
-- [ ] 6.3 Update `.serena/memories/{architecture,data_flow}.md` to match.
+- [x] 6.2 Update `README.md` to an honest confidentiality statement.
+- [x] 6.3 Update `.serena/memories/{architecture,data_flow}.md` to match.
