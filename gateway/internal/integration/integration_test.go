@@ -37,24 +37,13 @@ type fakeCryptoServer struct {
 }
 
 func (fakeCryptoServer) Encrypt(_ context.Context, in *messagepb.EncryptRequestMessage) (*messagepb.EncryptedMessageResponse, error) {
-	payload := cryptoclient.EncryptedPayload{
-		PrivateKey:   []byte("pk"),
-		EncryptedKey: []byte("ek"),
-		Data:         []byte("cipher:" + in.GetBody()),
-	}
-	body, err := json.Marshal(payload)
-	if err != nil {
-		return nil, err
-	}
-	return &messagepb.EncryptedMessageResponse{Body: body}, nil
+	// Opaque blob: the gateway must forward/store these bytes verbatim and
+	// never inspect their internal structure.
+	return &messagepb.EncryptedMessageResponse{Body: []byte("cipher:" + in.GetBody())}, nil
 }
 
 func (fakeCryptoServer) Decrypt(_ context.Context, in *messagepb.DecryptRequestMessage) (*messagepb.DecryptedMessageResponse, error) {
-	var payload cryptoclient.EncryptedPayload
-	if err := json.Unmarshal(in.GetBody(), &payload); err != nil {
-		return nil, err
-	}
-	return &messagepb.DecryptedMessageResponse{Body: string(payload.Data)}, nil
+	return &messagepb.DecryptedMessageResponse{Body: string(in.GetBody())}, nil
 }
 
 // startFakeCrypto spins up the fake gRPC service on a random port.

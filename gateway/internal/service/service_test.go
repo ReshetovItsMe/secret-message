@@ -8,22 +8,21 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/ReshetovItsMe/secret-message/gateway/internal/cryptoclient"
 	"github.com/ReshetovItsMe/secret-message/gateway/internal/store"
 )
 
 type fakeCrypto struct {
-	payload     *cryptoclient.EncryptedPayload
+	blob        []byte
 	encryptErr  error
 	decryptText string
 	decryptErr  error
 }
 
-func (f *fakeCrypto) Encrypt(_ context.Context, _ string) (*cryptoclient.EncryptedPayload, error) {
-	return f.payload, f.encryptErr
+func (f *fakeCrypto) Encrypt(_ context.Context, _ string) ([]byte, error) {
+	return f.blob, f.encryptErr
 }
 
-func (f *fakeCrypto) Decrypt(_ context.Context, _ *cryptoclient.EncryptedPayload) (string, error) {
+func (f *fakeCrypto) Decrypt(_ context.Context, _ []byte) (string, error) {
 	return f.decryptText, f.decryptErr
 }
 
@@ -32,26 +31,26 @@ func (f *fakeCrypto) Close() error { return nil }
 type fakeStore struct {
 	id         string
 	sendErr    error
-	payload    *cryptoclient.EncryptedPayload
+	blob       []byte
 	consumeErr error
 }
 
-func (f *fakeStore) Send(_ context.Context, _ *cryptoclient.EncryptedPayload) (string, error) {
+func (f *fakeStore) Send(_ context.Context, _ []byte) (string, error) {
 	return f.id, f.sendErr
 }
 
-func (f *fakeStore) Consume(_ context.Context, _ string) (*cryptoclient.EncryptedPayload, error) {
+func (f *fakeStore) Consume(_ context.Context, _ string) ([]byte, error) {
 	if f.consumeErr != nil {
 		return nil, f.consumeErr
 	}
-	return f.payload, nil
+	return f.blob, nil
 }
 
 func (f *fakeStore) Close() error { return nil }
 
 func TestCreateMessage(t *testing.T) {
 	ctx := context.Background()
-	crypto := &fakeCrypto{payload: &cryptoclient.EncryptedPayload{Data: []byte("x")}}
+	crypto := &fakeCrypto{blob: []byte("x")}
 	storage := &fakeStore{id: "msg-1"}
 	svc := New(crypto, storage)
 
@@ -72,7 +71,7 @@ func TestCreateMessagePropagatesEncryptError(t *testing.T) {
 
 func TestCreateMessagePropagatesStoreError(t *testing.T) {
 	ctx := context.Background()
-	crypto := &fakeCrypto{payload: &cryptoclient.EncryptedPayload{}}
+	crypto := &fakeCrypto{blob: []byte{}}
 	storage := &fakeStore{sendErr: errors.New("redis down")}
 	svc := New(crypto, storage)
 
@@ -84,7 +83,7 @@ func TestCreateMessagePropagatesStoreError(t *testing.T) {
 func TestGetMessage(t *testing.T) {
 	ctx := context.Background()
 	crypto := &fakeCrypto{decryptText: "secret text"}
-	storage := &fakeStore{payload: &cryptoclient.EncryptedPayload{Data: []byte("c")}}
+	storage := &fakeStore{blob: []byte("c")}
 	svc := New(crypto, storage)
 
 	text, err := svc.GetMessage(ctx, "msg-1")
@@ -104,7 +103,7 @@ func TestGetMessageMapsNotFound(t *testing.T) {
 func TestGetMessagePropagatesDecryptError(t *testing.T) {
 	ctx := context.Background()
 	crypto := &fakeCrypto{decryptErr: errors.New("bad key")}
-	storage := &fakeStore{payload: &cryptoclient.EncryptedPayload{}}
+	storage := &fakeStore{blob: []byte{}}
 	svc := New(crypto, storage)
 
 	_, err := svc.GetMessage(ctx, "msg-1")
