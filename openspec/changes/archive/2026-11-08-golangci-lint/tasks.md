@@ -39,6 +39,6 @@ Do not apply the historical PrivateKey/json.Unmarshal finding without reproducti
 
 ## 4. Verification (backend)
 
-- [ ] 4.1 `cd gateway && make lint && make lint-staticcheck && make test` green.
-- [ ] 4.2 `cd secret_assistant && golangci-lint run && go build ./... && go test ./...`
+- [x] 4.1 `cd gateway && make lint && make lint-staticcheck && make test` green.
+- [x] 4.2 `cd secret_assistant && golangci-lint run && go build ./... && go test ./...`
   green.

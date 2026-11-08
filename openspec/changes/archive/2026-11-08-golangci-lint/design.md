@@ -34,6 +34,12 @@ CI tool-install step would fail. See proposal.md — Why.
   Merge after config and before gateway make lint changes. Crypto lint is
   verified locally; introducing a new crypto CI lint gate is out of scope.
   No environment/tool failure may be accepted as green verification.
+- **Owner-approved Compose acceptance location (2026-11-08).** Validate both
+  development and production Compose configurations in actual GitHub Actions CI.
+  Docker is not installed on this host; do not install it or claim local Compose
+  validation. Require successful `Validate compose` and `Validate production compose`
+  steps on the final PR and main runs. This changes validation location only, not
+  the required checks.
 
 - **Single root `.golangci.yml`.** golangci-lint walks up to the nearest config, so one
   file at the repo root serves both `gateway` and `secret_assistant`. The config lives in
