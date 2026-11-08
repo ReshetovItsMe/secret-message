@@ -9,7 +9,7 @@ Do not apply the historical PrivateKey/json.Unmarshal finding without reproducti
 
 ## 1. Configuration (backend)
 
-- [ ] 1.1 Add a root `.golangci.yml` enabling a conservative set (at least `staticcheck`,
+- [x] 1.1 Add a root `.golangci.yml` enabling a conservative set (at least `staticcheck`,
   `govet`, `errcheck`, `ineffassign`, `unused`, `misspell`); leave formatting to the
   existing `gofmt`/`make fmt` path. Validate v2 config and prove both module
   analyzers initialize with pinned v2.15.0 before wiring (report real findings
