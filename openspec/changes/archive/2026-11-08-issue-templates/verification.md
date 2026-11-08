@@ -3,7 +3,10 @@
 ## Completeness
 
 Implementation tasks 1.1–1.3 are merged via PR #72 into feature/issue-templates.
-Local YAML verification is complete; live GitHub rendering is NOT verified.
+PR #73 integrated the change into main as
+`c58111b19796b2435382fa257363925f21ca9261`.
+Local YAML verification and owner-supplied live GitHub verification are complete;
+all tasks are accepted. Teamlead approved verification card t_5597a968.
 
 ## Correctness
 
@@ -18,17 +21,28 @@ No product/API behavior changes; spec deltas are intentionally skipped.
 Design risk text understates required bug fields; the implemented required fields
 (version, environment, reproduction, expected, actual) match the form decision.
 
-## Pending external acceptance — task 2.2
+## Completed external acceptance — task 2.2
 
-Browser attempt failed with chrome-not-running. Owner must open
-https://github.com/ReshetovItsMe/secret-message/issues/new/choose after integration:
+Evidence source: the owner's live-browser confirmation, relayed by the default
+profile on kanban t_5597a968 at 2026-11-08 05:21 UTC, after PR #73 merged.
+This is not an automated browser run by devops or teamlead; earlier agent browser
+attempts failed with `chrome-not-running`.
 
-1. Confirm Bug report and Feature request appear without validation errors.
-2. Open each form and confirm its fields render; do not submit test issues.
-3. Confirm Contributing notes opens the README contributing section.
-4. Confirm no blank-issue option is offered in the chooser.
-5. Record results/screenshots or exact errors on kanban t_5597a968.
+At https://github.com/ReshetovItsMe/secret-message/issues/new/choose the owner confirmed:
 
-The owner explicitly requested integration sequencing resolution in t_2c03fe9d.
-This change is archived with an incomplete external check, not fully accepted.
-Do not mark task 2.2 or t_5597a968 complete without browser or owner evidence.
+1. Bug report and Feature request entries are visible.
+2. Both forms open and their fields render without errors.
+3. Contributing notes reaches the expected README contributing section.
+4. No blank-issue option is offered in the chooser.
+5. No test issues were submitted.
+
+Devops and teamlead independently reran the preserved local validator and
+`git diff --check` successfully. Teamlead also confirmed that all three template
+blob SHAs match main after PR #73. These checks establish local syntax/selected
+structure and deployed-file identity, not exhaustive GitHub schema validation.
+Teamlead approved t_5597a968 at 2026-11-08 05:25 UTC on that combined evidence.
+
+The owner-authorized integration exception in t_2c03fe9d initially archived this
+change with task 2.2 pending. This documentation reconciliation in t_53157b93
+records the subsequent acceptance without changing the historical evidence or
+claiming a new agent browser run. No external acceptance action remains.

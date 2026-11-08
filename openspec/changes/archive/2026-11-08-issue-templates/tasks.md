@@ -14,13 +14,15 @@ Role ownership: `devops` = `.github/**`.
 ## 2. Verification (devops)
 
 - [x] 2.1 Confirm all three YAML files parse and pass local structural checks.
-- [ ] 2.2 After integration to the default branch, confirm both templates render in the
+- [x] 2.2 After integration to the default branch, confirm both templates render in the
   GitHub "New issue" chooser, both forms open, the contributing link works, and
   the blank-issue path is disabled. Track evidence in kanban t_5597a968.
 
 ## Integration exception
 
 Owner-authorized sequencing resolution (t_2c03fe9d): integrate after local validation
-and green PR CI, before live default-branch verification. Archive retains task 2.2
-as pending; archiving is not a claim of final acceptance. This external verification
-does not gate the independent golangci-lint change. See verification.md.
+and green PR CI, before live default-branch verification. The archive initially
+retained task 2.2 as pending. Owner-supplied post-merge browser evidence was recorded
+on t_5597a968 and independently reviewed by teamlead on 2026-11-08; task 2.2 is now
+accepted. This verification does not gate the independent golangci-lint change.
+See verification.md for evidence provenance and limitations.
