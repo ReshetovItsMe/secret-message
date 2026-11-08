@@ -20,7 +20,7 @@ Do not apply the historical PrivateKey/json.Unmarshal finding without reproducti
 
 ## 1a. CI prerequisite (devops)
 
-- [ ] 1.2 Install pinned golangci-lint v2.15.0 in both Go CI jobs using Go 1.27.x,
+- [x] 1.2 Install pinned golangci-lint v2.15.0 in both Go CI jobs using Go 1.27.x,
   preserve staticcheck availability. Verify CI before
   gateway make lint switches; do not redesign unrelated jobs.
 
