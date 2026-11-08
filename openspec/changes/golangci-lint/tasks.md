@@ -2,6 +2,9 @@
 
 Role ownership: `backend` = `gateway/**`, `secret_assistant/**`, plus the root
 `.golangci.yml` (Go tooling configuration). `devops` owns `.github/**`.
+`qa` owns the `gateway/internal/integration/**` findings in task 2.2; `backend`
+owns production fixes and Makefile wiring. Complete task 2.2 only after both
+QA and backend PRs are merged and the full gateway lint run passes.
 
 All work targets feature/golangci-lint refreshed from current main. Use pinned
 golangci-lint v2.15.0 with Go 1.27; the old v1.64.8 is not an acceptable runner.
