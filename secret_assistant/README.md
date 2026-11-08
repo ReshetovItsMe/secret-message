@@ -9,6 +9,17 @@ The Secret Assistant service provides the following API endpoints:
 - `/encrypt`: Accepts data as input and encrypts it using the specified encryption key.
 - `/decrypt`: Accepts encrypted data as input and decrypts it using the specified encryption key.
 
+## Lint
+
+Use Go 1.27 and golangci-lint v2.15.0 on your `PATH`. From `secret_assistant/`, run:
+
+```bash
+make lint
+# Equivalent: golangci-lint run
+```
+
+Both commands use the shared `../.golangci.yml` configuration.
+
 ## Generate proto run (if changed)
 
 ```bash

@@ -5,9 +5,10 @@
 Issue #16. The gateway's `make lint` runs only `staticcheck`; `secret_assistant` has no
 linter wired at all. `golangci-lint` gives a single, configurable runner over a larger
 set of linters (including staticcheck, errcheck, govet, ineffassign, unused) and is the
-standard Go CI linter. It is already installed on this machine but currently fails while
-downloading modules in this dev environment — an environment/network limitation, not a
-code defect; GitHub Actions has network access and will run it cleanly.
+standard Go CI linter. The installed v1.64.8 has a Go 1.27 export-data
+incompatibility; network access alone does not resolve analyzer incompatibility.
+Use pinned golangci-lint v2.15.0 and prove it can analyze both current modules
+before wiring make lint or claiming CI readiness.
 
 ## What Changes
 
@@ -20,8 +21,9 @@ code defect; GitHub Actions has network access and will run it cleanly.
   documented command in `secret_assistant/README.md`), since it has no lint step today.
 - Fix any findings surfaced in `gateway/**` and `secret_assistant/**`, or document a
   deliberate `//nolint` with a reason where appropriate.
-- CI integration is intentionally **not** part of this change: `ci-pipeline` invokes
-  `make lint`, which will pick up golangci-lint automatically.
+- Minimal CI prerequisite is part of this change: devops installs pinned v2.15.0
+  before gateway make lint changes and preserves staticcheck for lint-staticcheck.
+  Crypto lint is verified locally; no unrelated workflow redesign.
 
 ## Capabilities
 
@@ -37,6 +39,8 @@ declares `skip_specs: true`.
 
 ## Sequencing
 
-Lands before `ci-pipeline` so that the gateway's CI static-analysis step (`make lint`)
-runs golangci-lint rather than only staticcheck. Independent of `secure-key-storage` and
-`crypto-tests`.
+Starts from current main after crypto-tests, secure-key-storage and ci-pipeline.
+The historical PrivateKey/json.Unmarshal SA4006 finding is obsolete after the
+envelope-encryption rewrite; rerun baseline instead of applying that old fix.
+Serialize existing cards: configuration/tool compatibility → CI prerequisite →
+gateway → crypto service → verification. Issue-template live acceptance is independent.

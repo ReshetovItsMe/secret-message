@@ -90,7 +90,7 @@ func TestEndToEnd(t *testing.T) {
 		MessageID string `json:"messageId"`
 	}
 	require.NoError(t, json.NewDecoder(createResp.Body).Decode(&created))
-	createResp.Body.Close()
+	assert.NoError(t, createResp.Body.Close())
 	require.NotEmpty(t, created.MessageID)
 
 	// 2. Read it once → 200 + decrypted text.
@@ -101,24 +101,24 @@ func TestEndToEnd(t *testing.T) {
 		Message string `json:"message"`
 	}
 	require.NoError(t, json.NewDecoder(getResp.Body).Decode(&got))
-	getResp.Body.Close()
+	assert.NoError(t, getResp.Body.Close())
 	assert.Equal(t, "cipher:hello from e2e", got.Message)
 
 	// 3. Read it again → 404 (one-time guarantee).
 	againResp, err := http.Get(fmt.Sprintf("%s/message?messageId=%s", ts.URL, created.MessageID))
 	require.NoError(t, err)
-	againResp.Body.Close()
+	assert.NoError(t, againResp.Body.Close())
 	assert.Equal(t, http.StatusNotFound, againResp.StatusCode)
 
 	// 4. Validation → 400.
 	badResp, err := http.Post(ts.URL+"/message", "application/json", bytes.NewBufferString(`{}`))
 	require.NoError(t, err)
-	badResp.Body.Close()
+	assert.NoError(t, badResp.Body.Close())
 	assert.Equal(t, http.StatusBadRequest, badResp.StatusCode)
 
 	// 5. Healthz.
 	healthResp, err := http.Get(ts.URL + "/healthz")
 	require.NoError(t, err)
-	healthResp.Body.Close()
+	assert.NoError(t, healthResp.Body.Close())
 	assert.Equal(t, http.StatusOK, healthResp.StatusCode)
 }

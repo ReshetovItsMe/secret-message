@@ -4,16 +4,17 @@
 #   make build   — compile the binary into ./bin/gateway
 #   make run     — run locally (needs REDIS_HOST/SECRET_ASSISTANT_URL, see README)
 #   make test    — run all tests with the race detector
-#   make lint    — run staticcheck (modern golint)
+#   make lint    — run golangci-lint
+#   make lint-staticcheck — run standalone staticcheck
 #   make proto   — regenerate protobuf code from ../proto/message.proto
 #   make tidy    — go mod tidy
 #   make vet     — go vet
 
 GO       ?= go
 BINARY    = bin/gateway
-LINTER   ?= staticcheck
+LINTER   ?= golangci-lint
 
-.PHONY: build run test lint proto tidy vet fmt clean
+.PHONY: build run test lint lint-staticcheck proto tidy vet fmt clean
 
 build:
 	$(GO) build -o $(BINARY) ./cmd/gateway
@@ -25,7 +26,10 @@ test:
 	$(GO) test ./... -race -count=1 -cover
 
 lint:
-	$(LINTER) ./...
+	$(LINTER) run
+
+lint-staticcheck:
+	staticcheck ./...
 
 proto:
 	protoc -I ../proto \
