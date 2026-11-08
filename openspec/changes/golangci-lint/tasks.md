@@ -33,9 +33,9 @@ Do not apply the historical PrivateKey/json.Unmarshal finding without reproducti
 
 ## 3. Wire into secret_assistant (backend)
 
-- [ ] 3.1 Add a `golangci-lint` invocation for `secret_assistant` (a `Makefile` `lint`
+- [x] 3.1 Add a `golangci-lint` invocation for `secret_assistant` (a `Makefile` `lint`
   target or a documented command in `secret_assistant/README.md`).
-- [ ] 3.2 Run it and fix any findings.
+- [x] 3.2 Run it and fix any findings.
 
 ## 4. Verification (backend)
 
