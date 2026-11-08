@@ -1,13 +1,25 @@
 # Tasks: Add golangci-lint
 
 Role ownership: `backend` = `gateway/**`, `secret_assistant/**`, plus the root
-`.golangci.yml` (Go tooling configuration).
+`.golangci.yml` (Go tooling configuration). `devops` owns `.github/**`.
+
+All work targets feature/golangci-lint refreshed from current main. Use pinned
+golangci-lint v2.15.0 with Go 1.27; the old v1.64.8 is not an acceptable runner.
+Do not apply the historical PrivateKey/json.Unmarshal finding without reproduction.
 
 ## 1. Configuration (backend)
 
 - [ ] 1.1 Add a root `.golangci.yml` enabling a conservative set (at least `staticcheck`,
   `govet`, `errcheck`, `ineffassign`, `unused`, `misspell`); leave formatting to the
-  existing `gofmt`/`make fmt` path.
+  existing `gofmt`/`make fmt` path. Validate v2 config and prove both module
+  analyzers initialize with pinned v2.15.0 before wiring (report real findings
+  separately from environment failures).
+
+## 1a. CI prerequisite (devops)
+
+- [ ] 1.2 Install pinned golangci-lint v2.15.0 in both Go CI jobs using Go 1.27.x,
+  preserve staticcheck availability. Verify CI before
+  gateway make lint switches; do not redesign unrelated jobs.
 
 ## 2. Wire into the gateway (backend)
 
