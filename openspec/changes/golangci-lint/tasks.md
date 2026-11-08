@@ -26,9 +26,9 @@ Do not apply the historical PrivateKey/json.Unmarshal finding without reproducti
 
 ## 2. Wire into the gateway (backend)
 
-- [ ] 2.1 Change `gateway/Makefile` `make lint` to run `golangci-lint run`, and add a
+- [x] 2.1 Change `gateway/Makefile` `make lint` to run `golangci-lint run`, and add a
   `lint-staticcheck` target that still runs `staticcheck ./...`.
-- [ ] 2.2 Run `cd gateway && make lint` and fix any findings (or add a justified
+- [x] 2.2 Run `cd gateway && make lint` and fix any findings (or add a justified
   `//nolint`).
 
 ## 3. Wire into secret_assistant (backend)
