@@ -52,13 +52,21 @@ func run() error {
 	if err := rdb.Ping(ctx).Err(); err != nil {
 		return fmt.Errorf("connect redis: %w", err)
 	}
-	defer rdb.Close()
+	defer func() {
+		if err := rdb.Close(); err != nil {
+			log.Error("close redis client", "err", err)
+		}
+	}()
 
 	crypto, err := cryptoclient.New(cfg.SecretAssistantURL)
 	if err != nil {
 		return fmt.Errorf("init crypto client: %w", err)
 	}
-	defer crypto.Close()
+	defer func() {
+		if err := crypto.Close(); err != nil {
+			log.Error("close crypto client", "err", err)
+		}
+	}()
 
 	storage := store.New(rdb, cfg.MessageTTL, log)
 	svc := service.New(crypto, storage)
