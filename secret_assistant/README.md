@@ -11,7 +11,7 @@ The Secret Assistant service provides the following API endpoints:
 
 ## Lint
 
-Use Go 1.27 and golangci-lint v2.15.0 on your `PATH`. From `secret_assistant/`, run:
+Use Go 1.27.0 and golangci-lint v2.15.0 on your `PATH`. From `secret_assistant/`, run:
 
 ```bash
 make lint
