@@ -1,6 +1,6 @@
 module github.com/ReshetovItsMe/one-time-messaging-exchange-be
 
-go 1.18
+go 1.27.0
 
 require (
 	golang.org/x/net v0.0.0-20220802222814-0bcc04d9c69b

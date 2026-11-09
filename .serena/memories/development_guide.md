@@ -59,7 +59,7 @@ Frontend (Vue/TS): **no tests**. Quality gates = `pnpm type-check` (vue-tsc), `p
 
 - frontend: pnpm install (`--frozen-lockfile`) + `pnpm build` + `pnpm lint` (Node 26).
 - gateway: `go mod verify` + `go build ./...` + `go vet ./...` + `go test ./... -race` (Go 1.27.x).
-- secret_assistant: `go mod verify` + `go build` + `go test ./...` + `go vet ./...` (Go >=1.18).
+- secret_assistant: `go mod verify` + `go build` + `go test ./...` + `go vet ./...` (Go 1.27.0; CI uses Go 1.27.x).
 - push_to_docker_hub: builds/pushes Docker images (needs Docker Hub secrets).
 
 ## Conventions / process
