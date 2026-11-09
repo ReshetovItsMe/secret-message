@@ -11,7 +11,7 @@ Check versions against `go.mod`, `web/package.json`, the lockfile, and CI; do no
 | Component | Versions and tooling | Responsibility |
 |---|---|---|
 | `gateway/` | Go **1.27.0**, chi **5.3.2**, go-redis **9.22.0**, grpc-go **1.83.2**, validator **10.30.3**, lo **1.53.0** | Start at `cmd/gateway/main.go`; find business orchestration in `internal/service/`, Redis in `internal/store/`, the gRPC adapter in `internal/cryptoclient/`, and HTTP in `internal/handler/` and `internal/server/`. |
-| `secret_assistant/` | Go **1.18**, grpc-go **1.48.0**, stdlib `crypto` | Start at `cmd/main.go`; find cryptography in `internal/encrypt/` and `internal/decrypt/`. |
+| `secret_assistant/` | Go **1.27.0**, grpc-go **1.48.0**, stdlib `crypto` | Start at `cmd/main.go`; find cryptography in `internal/encrypt/` and `internal/decrypt/`. |
 | `web/` | Vue **3.5.44**, TypeScript **6.0.3**, Vite **8.3.5**, vue-router **5.4.0**, Element Plus **2.14.7**, VueUse **15.0.0**, axios **1.21.0**, vite-plugin-pwa **2.0.0** | Start at `src/main.ts`; change UI in `src/views/` and `src/components/`, and PWA registration in `src/registerServiceWorker.ts`. |
 | Infrastructure | Docker Compose, nginx, `redis:7-bullseye`; Node **26** in CI, pnpm **12.16.1** | Find configuration in `docker-compose*.yml`, `**/Dockerfile`, `web/nginx.conf`, and `.github/workflows/build.yml`. |
 

@@ -8,7 +8,7 @@ One-time secret-sharing service: a sender encrypts plaintext (envelope encryptio
 |---|---|---|---|---|
 | web | `web/` | Vue 3 (`<script setup lang="ts">`), Vite, vue-router, element-plus, @vueuse/core, axios, PWA, nginx SPA | 8080 | Sender/recipient UI |
 | gateway | `gateway/` | Go 1.27, chi, log/slog, go-redis v9, grpc-go, validator, samber/lo | 3000 | HTTP API + orchestration |
-| secret-assistant | `secret_assistant/` | Go 1.18, grpc-go, crypto/aes + crypto/rsa | 50052 | Crypto (encrypt/decrypt) gRPC |
+| secret-assistant | `secret_assistant/` | Go 1.27.0, grpc-go, crypto/aes + crypto/rsa | 50052 | Crypto (encrypt/decrypt) gRPC |
 | redis | — | redis:7-bullseye | 6379 | One-time payload store (TTL) |
 
 Wired with Docker Compose. Browser -> web (nginx) -> gateway (chi; `/api/*` rewritten, `/api` prefix stripped) -> gRPC -> secret-assistant; gateway -> Redis.
@@ -25,7 +25,7 @@ Wired with Docker Compose. Browser -> web (nginx) -> gateway (chi; `/api/*` rewr
 - Crypto is envelope encryption, done server-side in secret-assistant: a per-message AES-256-GCM key encrypts the plaintext, and a single service-held RSA-2048/OAEP key wraps that AES key. The service private key never leaves secret-assistant and is never stored in Redis — Redis holds only an opaque blob, so a Redis compromise alone reveals no plaintext. Plaintext transits the gateway (it calls `Encrypt`) — this is NOT end-to-end encryption.
 - `store` is a deep module: callers only see `Send`/`Consume`; the `msg:<uuid>` key layout never leaks.
 - gRPC is insecure (`insecure.NewCredentials()`) — compose network only, not public exposure.
-- Go version skew: gateway `go 1.27`, secret-assistant `go 1.18`.
+- Both Go modules target Go 1.27.0; CI uses Go 1.27.x.
 
 ## Cross-service contracts
 
