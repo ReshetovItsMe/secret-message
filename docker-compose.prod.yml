@@ -1,10 +1,9 @@
-version: "3.6"
-
 services:
   frontend:
-    image: reshetovitsme/secret-frontend:latest
+    image: reshetovitsme/secret-frontend:${IMAGE_TAG:?set_IMAGE_TAG}
+    restart: unless-stopped
     ports:
-      - "8080:80"
+      - "127.0.0.1:18080:80"
     expose:
       - "80"
     depends_on:
@@ -14,9 +13,8 @@ services:
     networks:
       - frontend-network
   gateway:
-    image: reshetovitsme/secret-gateway:latest
-    ports:
-      - "3000:3000"
+    image: reshetovitsme/secret-gateway:${IMAGE_TAG:?set_IMAGE_TAG}
+    restart: unless-stopped
     expose:
       - "3000"
     depends_on:
@@ -26,7 +24,8 @@ services:
       - frontend-network
       - backend-network
   secret-assistant:
-    image: reshetovitsme/secret-assistant:latest
+    image: reshetovitsme/secret-assistant:${IMAGE_TAG:?set_IMAGE_TAG}
+    restart: unless-stopped
     expose:
       - "50052"
     environment:
@@ -37,21 +36,23 @@ services:
       - backend-network
   redis:
     image: redis:7-bullseye
-    restart: always
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "always"]
+    volumes:
+      - redis_data:/data
     expose:
       - "6379"
     networks:
       - backend-network
 
-# Service private key (RSA-2048) for secret-assistant. Provision the key on the
-# host before deploying and keep the real file out of version control:
-#   openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 \
-#     -out secrets/secret-assistant-private-key.pem
-# The file is mounted read-only into the container as a Docker secret;
-# secret-assistant reads its path from RSA_PRIVATE_KEY_PATH.
+# The RSA key lives in a protected host file outside this repository.
+# Preserve this exact key across deployments to read existing encrypted messages.
 secrets:
   secret_assistant_private_key:
-    file: ./secrets/secret-assistant-private-key.pem
+    file: ${RSA_PRIVATE_KEY_FILE:?set_RSA_PRIVATE_KEY_FILE}
+
+volumes:
+  redis_data:
 
 networks:
   frontend-network:
