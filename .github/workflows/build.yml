@@ -115,4 +115,125 @@ jobs:
       - name: Validate compose
         run: docker compose config --quiet
       - name: Validate production compose
-        run: docker compose -f docker-compose.prod.yml config --quiet
+        run: |
+          set -euo pipefail
+          export IMAGE_TAG="$GITHUB_SHA"
+          export RSA_PRIVATE_KEY_FILE="$RUNNER_TEMP/synthetic-key.pem"
+          printf '%s\n' 'synthetic placeholder, not a private key' > "$RSA_PRIVATE_KEY_FILE"
+          docker compose -f docker-compose.prod.yml config --quiet
+          python3 -m unittest discover -s .github/deployment/tests -v
+      - name: Build and syntax-check image candidates
+        run: |
+          docker build -t local/secret-frontend:check web
+          docker run --rm --add-host gateway:127.0.0.1 --entrypoint nginx local/secret-frontend:check -t
+          docker build -t local/secret-gateway:check gateway
+          docker build -t local/secret-assistant:check secret_assistant
+
+  publish:
+    needs: [frontend, gateway, secret_assistant, compose]
+    if: github.event_name == 'push' && vars.PRODUCTION_PUBLISH_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Publish frontend
+        uses: docker/build-push-action@v7
+        with:
+          context: ./web
+          push: true
+          tags: reshetovitsme/secret-frontend:${{ github.sha }}
+      - name: Publish gateway
+        uses: docker/build-push-action@v7
+        with:
+          context: ./gateway
+          push: true
+          tags: reshetovitsme/secret-gateway:${{ github.sha }}
+      - name: Publish secret-assistant
+        uses: docker/build-push-action@v7
+        with:
+          context: ./secret_assistant
+          push: true
+          tags: reshetovitsme/secret-assistant:${{ github.sha }}
+
+  deploy:
+    needs: [publish]
+    if: github.event_name == 'push' && vars.PRODUCTION_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    concurrency:
+      group: secret-message-production
+      cancel-in-progress: false
+      queue: max
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Stage and deploy SHA-tagged application images
+        shell: bash
+        env:
+          RELEASE_SHA: ${{ github.sha }}
+          DEPLOY_SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+          DEPLOY_SSH_USER: ${{ secrets.DEPLOY_SSH_USER }}
+          DEPLOY_SSH_HOST_KEY: ${{ secrets.DEPLOY_SSH_HOST_KEY }}
+          DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$RUNNER_TEMP/deploy-ssh"
+          printf '%s\n' "$DEPLOY_SSH_PRIVATE_KEY" > "$RUNNER_TEMP/deploy-ssh/id_ed25519"
+          printf '%s\n' "$DEPLOY_SSH_HOST_KEY" > "$RUNNER_TEMP/deploy-ssh/known_hosts"
+          test -s "$RUNNER_TEMP/deploy-ssh/id_ed25519"
+          test -s "$RUNNER_TEMP/deploy-ssh/known_hosts"
+          target="$DEPLOY_SSH_USER@$DEPLOY_SSH_HOST"
+          ssh_args=(-o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes
+                    -o "UserKnownHostsFile=$RUNNER_TEMP/deploy-ssh/known_hosts"
+                    -i "$RUNNER_TEMP/deploy-ssh/id_ed25519")
+          if ! deployed="$(ssh "${ssh_args[@]}" "$target" \
+               'if test -f /opt/secret-message/.deployed-sha; then head -n 1 /opt/secret-message/.deployed-sha; fi' 2>/dev/null)"; then
+            echo 'Unable to read application revision marker' >&2
+            exit 1
+          fi
+          if [[ -n "$deployed" ]]; then
+            if [[ ! "$deployed" =~ ^[0-9a-f]{40}$ ]]; then
+              echo 'Invalid deployed revision marker' >&2
+              exit 1
+            fi
+            if git merge-base --is-ancestor "$RELEASE_SHA" "$deployed"; then
+              echo 'Newer or identical healthy revision already deployed'
+              exit 0
+            fi
+            if ! git merge-base --is-ancestor "$deployed" "$RELEASE_SHA"; then
+              echo 'Deployed revision is not an ancestor; manual review required' >&2
+              exit 1
+            fi
+          fi
+          stage="/opt/secret-message/staging/$RELEASE_SHA"
+          if ! ssh "${ssh_args[@]}" "$target" "mkdir -p $stage" >/dev/null 2>&1; then
+            echo 'Pinned SSH connection or staging failed' >&2
+            exit 1
+          fi
+          if ! scp -q "${ssh_args[@]}" docker-compose.prod.yml .github/deployment/rollout.sh .github/deployment/smoke.py "$target:$stage/" >/dev/null 2>&1; then
+            echo 'Application file transfer failed' >&2
+            exit 1
+          fi
+          status=0
+          ssh "${ssh_args[@]}" "$target" \
+              "install -m 0644 $stage/smoke.py /opt/secret-message/deploy/smoke.py &&
+               install -m 0755 $stage/rollout.sh /opt/secret-message/deploy/rollout.sh &&
+               CANDIDATE_COMPOSE_FILE=$stage/docker-compose.prod.yml bash /opt/secret-message/deploy/rollout.sh $RELEASE_SHA" >/dev/null 2>&1 || status=$?
+          if (( status == 2 )); then
+            echo 'Rollback or initial recovery failed; inspect protected host state' >&2
+            exit 1
+          fi
+          if (( status != 0 )); then
+            echo 'Candidate failed but previous app restored, or staging failed; inspect protected host state' >&2
+            exit 1
+          fi
+          echo 'Application revision deployed and synthetically verified'

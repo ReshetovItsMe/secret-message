@@ -1,21 +1,14 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.27.0-alpine
-ENV APP_HOME /app/secret-assistant
+FROM golang:1.27.0-alpine AS build
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
+COPY . .
+RUN CGO_ENABLED=0 go build -o /secret-assistant ./cmd
 
-WORKDIR "$APP_HOME"
-
-COPY go.mod ./
-COPY go.sum ./
-
-RUN go mod download
-RUN go mod verify
-
-COPY . . 
-
-WORKDIR "./cmd"
-RUN go build -o /secret-assistant
-
+FROM alpine:3.21
+ENV RSA_PRIVATE_KEY_PATH=/run/secrets/secret_assistant_private_key
+COPY --from=build /secret-assistant /usr/local/bin/secret-assistant
 EXPOSE 50052
-
-CMD ["/secret-assistant"]
+CMD ["/usr/local/bin/secret-assistant"]
